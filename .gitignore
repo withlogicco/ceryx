@@ -1,0 +1,5 @@
+.env
+*.pyc
+production.yml
+dev.yml
+data
