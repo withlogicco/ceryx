@@ -8,7 +8,7 @@ which is querying a Redis backend for results.
 
 ## API
 Ceryx comes with a simple Flask web service, which supports REST operations on
-routes. You can dynamically create, udpate, and delete routes on the go using
+routes. You can dynamically create, update, and delete routes on the go using
 a REST client.
 
 ## Configuration
