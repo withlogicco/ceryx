@@ -1,4 +1,4 @@
-FROM ubuntu:trusty
+FROM debian:jessie
 MAINTAINER Antonis Kalipetis <akalipetis@gmail.com>
 
 RUN apt-get update -y
