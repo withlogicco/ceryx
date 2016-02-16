@@ -13,7 +13,7 @@ local redis = require "resty.redis"
 local red = redis:new()
 red:set_timeout(100) -- 100 ms
 local redis_host = os.getenv("CERYX_REDIS_HOST")
-if not redis_host then redis_host = "127.0.0.1" end
+if not redis_host then redis_host = "192.168.99.100" end
 local redis_port = os.getenv("CERYX_REDIS_PORT")
 if not redis_port then redis_port = 6379 end
 local res, err = red:connect(redis_host, redis_port)
