@@ -15,11 +15,11 @@ api:
   extends:
     file: base.yml
     service: api
-  build: api
+  image: jazzdd/alpine-flask
   net: container:proxy
   volumes:
-   - ./api/ceryx:/ceryx/ceryx
-   - ./api/bin:/ceryx/bin
+   - ./api:/app
+  command: "-d"
 redis:
-  image: redis
+  image: jbergknoff/redis
   net: container:proxy

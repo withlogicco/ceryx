@@ -11,6 +11,7 @@ if os.getenv('CERYX_DEBUG', '').lower() in ['0', 'no', 'false']:
 
 API_BIND_HOST = os.getenv('CERYX_API_HOST', '127.0.0.1')
 API_BIND_PORT = os.getenv('CERYX_API_PORT', 5555)
+
 SERVER_NAME = os.getenv('CERYX_SERVER_NAME')
 SECRET_KEY = os.getenv('CERYX_SECRET_KEY')
 if SECRET_KEY:
