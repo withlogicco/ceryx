@@ -9,5 +9,4 @@ from ceryx.api import app
 if __name__ == '__main__':
 
     app.run(host=settings.API_BIND_HOST, port=settings.API_BIND_PORT, debug=True)
-    #app.run( host="0.0.0.0", port=80, debug=True )
 
