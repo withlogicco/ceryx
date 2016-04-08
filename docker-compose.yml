@@ -7,10 +7,10 @@ proxy:
    - "8888:80"
    - "5555:5555"
   volumes:
-   - proxy/nginx/conf:/opt/openresty/nginx/conf
-   - proxy/nginx/lualib:/opt/openresty/nginx/lualib
-   - proxy/nginx/sites-enabled:/opt/openresty/nginx/sites-enabled
-   - proxy/nginx/sites-available:/opt/openresty/nginx/sites-available
+   - ./proxy/nginx/conf:/opt/openresty/nginx/conf
+   - ./proxy/nginx/lualib:/opt/openresty/nginx/lualib
+   - ./proxy/nginx/sites-enabled:/opt/openresty/nginx/sites-enabled
+   - ./proxy/nginx/sites-available:/opt/openresty/nginx/sites-available
 api:
   extends:
     file: base.yml
@@ -18,8 +18,8 @@ api:
   build: api
   net: container:proxy
   volumes:
-   - api/ceryx:/ceryx/ceryx
-   - api/bin:/ceryx/bin
+   - ./api/ceryx:/ceryx/ceryx
+   - ./api/bin:/ceryx/bin
 redis:
   image: redis
   net: container:proxy
