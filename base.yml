@@ -1,5 +1,9 @@
 proxy:
   image: sourcelair/ceryx-proxy
+  environment:
+    - CERYX_REDIS_PREFIX=ceryx
+    - CERYX_REDIS_HOST=127.0.0.1
+    - CERYX_REDIS_PORT=6379
 api:
   image: sourcelair/ceryx-api
   environment:
