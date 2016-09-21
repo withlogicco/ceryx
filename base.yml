@@ -1,6 +1,0 @@
-proxy:
-  image: sourcelair/ceryx-proxy
-api:
-  image: sourcelair/ceryx-api
-  environment:
-   - CERYX_API_HOST=0.0.0.0

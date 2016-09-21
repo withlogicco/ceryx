@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  proxy:
+    extends:
+      file: base.yml
+      service: proxy
+    build: ./proxy
+    ports:
+      - 80
+      - 5555
+    volumes:
+      - ./proxy/nginx/conf:/opt/openresty/nginx/conf
+      - ./proxy/nginx/lualib:/opt/openresty/nginx/lualib
+      - ./proxy/nginx/sites-enabled:/opt/openresty/nginx/sites-enabled
+
+  api:
+    extends:
+      file: base.yml
+      service: api
+    build: api
+    volumes:
+      - ./api:/opt/ceryx
+
+  redis:
+    extends:
+      file: base.yml
+      service: redis
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
