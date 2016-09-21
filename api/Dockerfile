@@ -1,14 +1,7 @@
-FROM ubuntu:trusty
+FROM python:2.7.11-alpine
 MAINTAINER Antonis Kalipetis <akalipetis@gmail.com>
 
-RUN apt-get update -y
-RUN apt-get install -y python-dev python-pip git
-
-ADD . /ceryx
-WORKDIR /ceryx
-
-RUN python setup.py develop
-
-EXPOSE 5555
-
+COPY . /opt/ceryx
+WORKDIR /opt/ceryx
+RUN pip install /opt/ceryx 
 CMD ceryx-api-server.py
