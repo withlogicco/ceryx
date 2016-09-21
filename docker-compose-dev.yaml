@@ -8,17 +8,26 @@ services:
     build: ./proxy
     ports:
       - 80
-      - 5555
+    environment:
+      - CERYX_REDIS_HOST=redis
+      - CERYX_REDIS_PORT=6379
     volumes:
-      - ./proxy/nginx/conf:/opt/openresty/nginx/conf
-      - ./proxy/nginx/lualib:/opt/openresty/nginx/lualib
-      - ./proxy/nginx/sites-enabled:/opt/openresty/nginx/sites-enabled
+      - ./proxy/nginx/conf:/usr/local/openresty/nginx/conf
+      - ./proxy/nginx/lualib:/usr/local/openresty/nginx/lualib
+      - ./proxy/nginx/sites-enabled:/usr/local/openresty/nginx/sites-enabled
 
   api:
     extends:
       file: base.yml
       service: api
-    build: api
+    build: ./api
+    command: python /opt/ceryx/bin/ceryx-api-server.py
+    ports:
+      - 5555
+    environment:
+      - CERYX_REDIS_HOST=redis
+      - CERYX_REDIS_PORT=6379
+      - CERYX_API_HOST=0.0.0.0
     volumes:
       - ./api:/opt/ceryx
 
