@@ -3,7 +3,7 @@ version: '2'
 services:
   proxy:
     extends:
-      file: base.yml
+      file: base.yaml
       service: proxy
     build: ./proxy
     ports:
@@ -18,7 +18,7 @@ services:
 
   api:
     extends:
-      file: base.yml
+      file: base.yaml
       service: api
     build: ./api
     command: python /opt/ceryx/bin/ceryx-api-server.py
@@ -33,7 +33,7 @@ services:
 
   redis:
     extends:
-      file: base.yml
+      file: base.yaml
       service: redis
     volumes:
       - redis_data:/data
