@@ -109,6 +109,10 @@ keep developing this as an Open Source project. Feel free to make suggestions
 in the [issues section](https://github.com/sourcelair/ceryx/issues) in Github
 or open o pull request.
 
+## Dynamic SSL certificates
+
+You can read more information on how to configure Ceryx with Dynamic SSL certificates [here](docs/dynamic-ssl).
+
 ## License
 
 Ceryx is licensed under the "The MIT License (MIT)".
