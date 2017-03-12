@@ -19,6 +19,11 @@ parser.add_argument(
     'target', type=str, required=True, help='Target is required'
 )
 
+update_parser = reqparse.RequestParser()
+update_parser.add_argument(
+    'target', type=str, required=True, help='Target is required'
+)
+
 router = RedisRouter.from_config()
 
 
@@ -69,8 +74,8 @@ class Route(Resource):
         Creates or updates the route with the given source, pointing to the
         given target
         """
-        args = parser.parse_args()
-        router.insert(args['source'], args['target'])
+        args = update_parser.parse_args()
+        router.insert(source, args['target'])
         return args, 201
 
 
