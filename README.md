@@ -1,5 +1,6 @@
 # Ceryx - Simple, but powerful Reverse Proxy
-![Build status](https://travis-ci.org/sourcelair/ceryx.svg?branch=master)
+
+[![Build Status](https://travis-ci.org/sourcelair/ceryx.svg)](https://travis-ci.org/sourcelair/ceryx)
 
 Ceryx is a dynamic reverse proxy based on NGINX OpenResty with an API.
 

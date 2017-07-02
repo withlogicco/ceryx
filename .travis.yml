@@ -4,12 +4,12 @@ python:
     - 2.7
 
 install:
-    - cd api && pip install -r requirements-dev.txt
+    - pip install -r api/requirements-dev.txt
 
 services:
   - redis-server
 
-script: cd api && ./bin/test
+script: bash -c "cd api && ./bin/test"
 
 notifications:
   email: false
