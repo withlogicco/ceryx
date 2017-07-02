@@ -1,0 +1,7 @@
+#! /bin/sh
+#
+# Run the Ceryx API test suite, using Nose.
+
+set -e
+
+nosetests

@@ -9,8 +9,11 @@ services:
       - ./proxy/nginx/sites-enabled:/usr/local/openresty/nginx/sites-enabled
 
   api:
-    build: ./api
-    command: python /opt/ceryx/bin/ceryx-api-server.py
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      args:
+        PIP_REQUIREMENTS_FILE: requirements-dev.txt
     volumes:
       - ./api:/opt/ceryx
     environment:
