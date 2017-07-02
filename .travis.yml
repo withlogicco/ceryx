@@ -1,10 +1,10 @@
 language: python
 
 python:
-    - 2.7
+  - 2.7
 
 install:
-    - pip install -r api/requirements-dev.txt
+  - pip install -r api/requirements-dev.txt
 
 services:
   - redis-server
