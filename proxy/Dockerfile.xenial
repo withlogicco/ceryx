@@ -1,5 +1,4 @@
-
-FROM openresty/openresty:1.11.2.1-xenial
+FROM openresty/openresty:1.11.2.3-xenial
 MAINTAINER Antonis Kalipetis <akalipetis@gmail.com>
 
 COPY ./nginx/conf /usr/local/openresty/nginx/conf

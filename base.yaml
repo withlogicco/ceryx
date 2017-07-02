@@ -1,9 +1,0 @@
-version: '2'
-
-services:
-  proxy:
-    image: sourcelair/ceryx-proxy:latest
-  api:
-    image: sourcelair/ceryx-api:latest
-  redis:
-    image: redis:3.2.3-alpine
