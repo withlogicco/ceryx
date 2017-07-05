@@ -40,7 +40,7 @@ docker-compose up
 ```
 
 To access (and therefore 🐶 dogfood 🐶) the Ceryx API via Ceryx' proxy, set the
-`asd` environment variable and run the following command in your terminal:
+`CERYX_API_HOSTNAME` environment variable and run the following command in your terminal:
 
 ```
 docker-compose exec api bin/populate-api
