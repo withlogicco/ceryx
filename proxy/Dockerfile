@@ -1,4 +1,4 @@
-FROM openresty/openresty:1.11.2.1-alpine
+FROM openresty/openresty:1.11.2.3-alpine
 MAINTAINER Antonis Kalipetis <akalipetis@gmail.com>
 
 COPY ./nginx/conf /usr/local/openresty/nginx/conf

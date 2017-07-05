@@ -1,5 +1,10 @@
 from setuptools import setup
 
+
+with open('requirements.txt') as requirements_file:
+    requirements = [line.strip() for line in requirements_file.readlines()]
+    
+    
 setup(
     name='ceryx',
     version='0.2.0',
@@ -12,11 +17,7 @@ setup(
     license=open('LICENSE.txt').read(),
     description='Ceryx, a dynamic reverse proxy based on NGINX OpenResty.',
     long_description=open('README.md').read(),
-    install_requires=[
-        'redis==2.10.3',
-        'Flask==0.10.1',
-        'Flask-RESTful==0.2.12',
-    ],
+    install_requires=requirements,
 )
 
 from distutils.core import setup

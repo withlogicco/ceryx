@@ -1,0 +1,28 @@
+version: '3.3'
+
+services:
+  proxy:
+    build: ./proxy
+    volumes:
+      - ./proxy/nginx/conf:/usr/local/openresty/nginx/conf
+      - ./proxy/nginx/lualib:/usr/local/openresty/nginx/lualib
+      - ./proxy/nginx/sites-enabled:/usr/local/openresty/nginx/sites-enabled
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      args:
+        PIP_REQUIREMENTS_FILE: requirements-dev.txt
+    volumes:
+      - ./api:/opt/ceryx
+    environment:
+      CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-api.ceryx.dev}
+      CERYX_DEBUG: ${CERYX_DEBUG:-true}
+
+  redis:
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

@@ -1,4 +1,7 @@
 # Ceryx - Simple, but powerful Reverse Proxy
+
+[![Build Status](https://travis-ci.org/sourcelair/ceryx.svg)](https://travis-ci.org/sourcelair/ceryx)
+
 Ceryx is a dynamic reverse proxy based on NGINX OpenResty with an API.
 
 Ceryx is used to provide public URLs to tens of thousands of projects at https://www.sourcelair.com.
@@ -22,81 +25,26 @@ configuration options are the following:
   * ``CERYX_API_HOST``: sets the host that the API will bind to - defaults to 127.0.0.1
   * ``CERYX_API_PORT``: sets the port that the API will listen - defaults to 5555
   * ``CERYX_SERVER_NAME``: the URL of the API service - default to None
+  * ``CERYX_API_HOSTNAME``: identical to `CERYX_SERVER_NAME`, but without imposing `Host` header limits - default to None
   * ``CERYX_SECRET_KEY``: the path of the secret key to use - defaults to None
   * ``CERYX_REDIS_HOST``: the redis host to connect to - defaults to 127.0.0.1
   * ``CERYX_REDIS_PORT``: the redis port to connect to - defaults to 6379
   * ``CERYX_REDIS_PREFIX``: the redis prefix to use in keys - defaults to ceryx
 
 ## Quick Bootstrap
-Ceryx loves Docker, so you can easilly bootstrap Ceryx using the following
+Ceryx loves Docker, so you can easily bootstrap Ceryx using the following
 command, given that you have already installed Docker and Docker Compose.
 
 ```
 docker-compose up
 ```
 
-You can also easily create your own production Docker compose file, using the
-services defined in base.yml file. An example Docker compose file could be the
-following:
+To access (and therefore 🐶 dogfood 🐶) the Ceryx API via Ceryx' proxy, set the
+`asd` environment variable and run the following command in your terminal:
 
-```yaml
-# production.yml
-proxy:
-  extends:
-    file: base.yml
-    service: proxy
-  ports:
-   - "80:80"
-  environment:
-   - CERYX_REDIS_HOST=my.redis.host
-api:
-  extends:
-    file: base.yml
-    service: api
-  ports:
-   - "5555:5555"
-  environment:
-   - CERYX_REDIS_HOST=my.redis.host
-   - CERYX_DEBUG=false
-   - CERYX_SECRET_KEY=/path/to/production/secret
 ```
-
-If you'd like to persist data, you can create the following file:
-
-```yaml
-# dev.yml
-proxy:
-  extends:
-    file: base.yml
-    service: proxy
-  build: proxy
-  ports:
-   - "8888:80"
-   - "5555:5555"
-  volumes:
-   - proxy/nginx/conf:/opt/openresty/nginx/conf
-   - proxy/nginx/lualib:/opt/openresty/nginx/lualib
-   - proxy/nginx/sites-enabled:/opt/openresty/nginx/sites-enabled
-   - proxy/nginx/sites-available:/opt/openresty/nginx/sites-available
-api:
-  extends:
-    file: base.yml
-    service: api
-  build: api
-  net: container:proxy
-  volumes:
-   - api/ceryx:/ceryx/ceryx
-   - api/bin:/ceryx/bin
-redis:
-  image: redis
-  net: container:proxy
-  volumes:
-   - data:/data
-  command: redis-server --appendonly yes
+docker-compose exec api bin/populate-api
 ```
-
-The above Redis container will store data in the data directory of your
-project.
 
 ## Development
 
