@@ -7,7 +7,7 @@ RUN mkdir -p /etc/letsencrypt &&\
         -keyout /etc/ssl/resty-auto-ssl-fallback.key \
         -out /etc/ssl/resty-auto-ssl-fallback.crt
 
-RUN /usr/local/openresty/luajit/bin/luarocks install lua-resty-auto-ssl
+RUN /usr/local/openresty/luajit/bin/luarocks install lua-resty-auto-ssl 0.11.1
 
 COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 COPY ceryx.conf /usr/local/openresty/nginx/sites-enabled/ceryx.conf
