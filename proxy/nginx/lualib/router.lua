@@ -18,9 +18,10 @@ local redis_port = os.getenv("CERYX_REDIS_PORT")
 if not redis_port then redis_port = 6379 end
 local res, err = red:connect(redis_host, redis_port)
 
--- Return if could not connect to Redis
+-- Exit if could not connect to Redis
 if not res then
-    return
+    ngx.log(ngx.ERR, "failed to connect to redis: " .. err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
 
 -- Construct Redis key
@@ -30,12 +31,21 @@ local key = prefix .. ":routes:" .. host
 
 -- Try to get target for host
 res, err = red:get(key)
+
+-- Exit if route could not be read
+if err then
+    ngx.log(ngx.ERR, "error reading route: " .. err)
+    ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
 if not res or res == ngx.null then
+    ngx.log(ngx.WARN, "no route for host " .. host)
+
     -- Construct Redis key for $wildcard
     key = prefix .. ":routes:$wildcard"
     res, err = red:get(key)
     if not res or res == ngx.null then
-        return
+        ngx.exit(ngx.HTTP_NOT_FOUND)
     end
     ngx.var.container_url = res
     return
