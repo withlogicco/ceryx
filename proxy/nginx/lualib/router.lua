@@ -1,4 +1,3 @@
-local container_url = ngx.var.container_url
 local host = ngx.var.host
 
 -- Check if key exists in local cache
@@ -20,7 +19,7 @@ local res, err = red:connect(redis_host, redis_port)
 
 -- Return if could not connect to Redis
 if not res then
-    return
+    return ngx.exit(ngx.HTTP_BAD_GATEWAY)
 end
 
 -- Construct Redis key
@@ -35,7 +34,7 @@ if not res or res == ngx.null then
     key = prefix .. ":routes:$wildcard"
     res, err = red:get(key)
     if not res or res == ngx.null then
-        return
+        return ngx.exit(ngx.HTTP_BAD_GATEWAY)
     end
     ngx.var.container_url = res
     return
