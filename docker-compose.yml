@@ -1,10 +1,11 @@
 version: '3.3'
 
 services:
-  proxy:
-    image: sourcelair/ceryx-proxy:latest
+  ceryx:
+    image: sourcelair/ceryx:latest
     ports:
       - ${CERYX_EXTERNAL_PORT:-80}:80
+      - ${CERYX_EXTERNAL_SSL_PORT:-443}:443
     depends_on:
       - redis
     environment:
@@ -15,7 +16,7 @@ services:
     image: sourcelair/ceryx-api:latest
     depends_on:
       - redis
-      - proxy
+      - ceryx
     environment:
       CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
       CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
@@ -25,4 +26,9 @@ services:
       CERYX_DEBUG: ${CERYX_DEBUG:-false}
       
   redis:
-    image: redis:3.2.3-alpine
+    image: redis:3.2.11-alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
