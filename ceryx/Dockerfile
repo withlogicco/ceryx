@@ -1,5 +1,8 @@
-FROM sourcelair/ceryx-proxy:xenial
-MAINTAINER Antonis Kalipetis <akalipetis@gmail.com>
+FROM openresty/openresty:1.13.6.1-xenial
+
+COPY ./nginx/conf /usr/local/openresty/nginx/conf
+COPY ./nginx/lualib /usr/local/openresty/nginx/lualib
+COPY ./nginx/sites-enabled /usr/local/openresty/nginx/sites-enabled
 
 RUN mkdir -p /etc/letsencrypt &&\
     openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 \
@@ -8,6 +11,3 @@ RUN mkdir -p /etc/letsencrypt &&\
         -out /etc/ssl/resty-auto-ssl-fallback.crt
 
 RUN /usr/local/openresty/luajit/bin/luarocks install lua-resty-auto-ssl 0.11.1
-
-COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
-COPY ceryx.conf /usr/local/openresty/nginx/sites-enabled/ceryx.conf

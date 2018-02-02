@@ -1,8 +1,0 @@
-FROM openresty/openresty:1.11.2.3-xenial
-MAINTAINER Antonis Kalipetis <akalipetis@gmail.com>
-
-COPY ./nginx/conf /usr/local/openresty/nginx/conf
-# Change the NGINX user to www-data, since Ubuntu does not have xfs
-RUN sed -i s/xfs/www-data/g /usr/local/openresty/nginx/conf/nginx.conf
-COPY ./nginx/lualib /usr/local/openresty/nginx/lualib
-COPY ./nginx/sites-enabled /usr/local/openresty/nginx/sites-enabled
