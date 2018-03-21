@@ -27,10 +27,10 @@ class RedisRouter(object):
         settings.
         """
         return RedisRouter(settings.REDIS_HOST, settings.REDIS_PORT,
-                           0, settings.REDIS_PREFIX)
+                           settings.REDIS_PASSWORD, 0, settings.REDIS_PREFIX)
 
-    def __init__(self, host, port, db, prefix):
-        self.client = redis.StrictRedis(host=host, port=port, db=db)
+    def __init__(self, host, port, password, db, prefix):
+        self.client = redis.StrictRedis(host=host, port=port, password=password, db=db)
         self.prefix = prefix
 
     def _prefixed_route_key(self, source):

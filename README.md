@@ -29,6 +29,7 @@ configuration options are the following:
   * ``CERYX_SECRET_KEY``: the path of the secret key to use - defaults to None
   * ``CERYX_REDIS_HOST``: the redis host to connect to - defaults to 127.0.0.1
   * ``CERYX_REDIS_PORT``: the redis port to connect to - defaults to 6379
+  * ``CERYX_REDIS_PASSWORD``: the redis password to use - defaults to none
   * ``CERYX_REDIS_PREFIX``: the redis prefix to use in keys - defaults to ceryx
 
 ## Quick Bootstrap
