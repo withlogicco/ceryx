@@ -22,6 +22,5 @@ services:
 
 networks:
   default:
-    attachable: true
     driver: bridge  # Use a Bridge network for local development
     name: ceryx
