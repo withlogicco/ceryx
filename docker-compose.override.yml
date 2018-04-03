@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.5'
 
 services:
   ceryx:
@@ -19,3 +19,8 @@ services:
     environment:
       CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-api.ceryx.dev}
       CERYX_DEBUG: ${CERYX_DEBUG:-true}
+
+networks:
+  default:
+    driver: bridge  # Use a Bridge network for local development
+    name: ceryx

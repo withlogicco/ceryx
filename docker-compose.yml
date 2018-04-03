@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.5'
 
 services:
   ceryx:
@@ -29,6 +29,12 @@ services:
     image: redis:3.2.11-alpine
     volumes:
       - redis_data:/data
+
+networks:
+  default:
+    attachable: true
+    driver: overlay
+    name: ceryx
 
 volumes:
   redis_data:
