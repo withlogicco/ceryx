@@ -54,3 +54,15 @@ end
 cache:set(host, res, 5)
 
 ngx.var.container_url = res
+
+local settings_key = prefix .. ":settings:" .. host
+
+res, err = red:hget(settings_key, "enforce_https")
+
+local enforce_https = tonumber(res)
+local is_not_https = (ngx.var.scheme ~= "https")
+
+if enforce_https and is_not_https then
+    return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
+end
+
