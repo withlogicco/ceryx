@@ -1,10 +1,18 @@
 local host = ngx.var.host
+local is_not_https = (ngx.var.scheme ~= "https")
 
 -- Check if key exists in local cache
 local cache = ngx.shared.ceryx
 local res, flags = cache:get(host)
 if res then
     ngx.var.container_url = res
+    
+    local enforce_https, flags = cache:get(host .. ":enforce_https")
+
+    if enforce_https and is_not_https then
+        return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
+    end
+
     return
 end
 
@@ -60,7 +68,8 @@ local settings_key = prefix .. ":settings:" .. host
 res, err = red:hget(settings_key, "enforce_https")
 
 local enforce_https = tonumber(res)
-local is_not_https = (ngx.var.scheme ~= "https")
+
+cache:set(host .. ":enforce_https", enforce_https, 5)
 
 if enforce_https and is_not_https then
     return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
