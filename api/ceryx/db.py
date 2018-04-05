@@ -5,6 +5,7 @@ import redis
 
 from ceryx import settings
 
+
 class RedisRouter(object):
     """
     Router using a redis backend, in order to route incoming requests.
@@ -13,6 +14,7 @@ class RedisRouter(object):
         """
         Exception raised when a lookup for a specific host was not found.
         """
+
         def __init__(self, message, errors=None):
             Exception.__init__(self, message)
             if errors is None:
@@ -30,7 +32,8 @@ class RedisRouter(object):
                            settings.REDIS_PASSWORD, 0, settings.REDIS_PREFIX)
 
     def __init__(self, host, port, password, db, prefix):
-        self.client = redis.StrictRedis(host=host, port=port, password=password, db=db)
+        self.client = redis.StrictRedis(
+            host=host, port=port, password=password, db=db)
         self.prefix = prefix
 
     def _prefixed_route_key(self, source):
@@ -76,8 +79,8 @@ class RedisRouter(object):
         Fetches the settings of the given host name.
         """
         key = self._prefixed_settings_key(host)
-	settings = self.client.hgetall(key)
-	return settings or {}
+        settings = self.client.hgetall(key)
+        return settings or {}
 
     def lookup_hosts(self, pattern):
         """
@@ -102,7 +105,7 @@ class RedisRouter(object):
                 {
                     'source': host,
                     'target': self.lookup(host, silent=True),
-		    'settings': self.lookup_settings(host),
+                    'settings': self.lookup_settings(host),
                 }
             )
         return routes

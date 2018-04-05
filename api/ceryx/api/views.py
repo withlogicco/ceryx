@@ -37,10 +37,10 @@ def lookup_or_abort(source):
     """
     try:
         resource = {
-	    'source': source,
-	    'target': router.lookup(source),
-	    'settings': router.lookup_settings(source),
-	}
+            'source': source,
+            'target': router.lookup(source),
+            'settings': router.lookup_settings(source),
+        }
         return resource
     except RedisRouter.LookupNotFound:
         abort(
