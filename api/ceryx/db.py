@@ -44,6 +44,17 @@ class RedisRouter(object):
         prefixed_key = prefixed_key % source
         return prefixed_key
 
+    def _prefixed_settings_key(self, source):
+        """
+        Returns the prefixed key, if prefix has been defined, for the given
+        source's setting.
+        """
+        prefixed_key = 'settings:%s'
+        if self.prefix is not None:
+            prefixed_key = self.prefix + ':settings:%s'
+        prefixed_key = prefixed_key % source
+        return prefixed_key
+
     def lookup(self, host, silent=False):
         """
         Fetches the target host for the given host name. If no host matching
@@ -59,6 +70,14 @@ class RedisRouter(object):
             )
         else:
             return target_host
+
+    def lookup_settings(self, host):
+        """
+        Fetches the settings of the given host name.
+        """
+        key = self._prefixed_settings_key(host)
+	settings = self.client.hgetall(key)
+	return settings or {}
 
     def lookup_hosts(self, pattern):
         """
@@ -82,7 +101,8 @@ class RedisRouter(object):
             routes.append(
                 {
                     'source': host,
-                    'target': self.lookup(host, silent=True)
+                    'target': self.lookup(host, silent=True),
+		    'settings': self.lookup_settings(host),
                 }
             )
         return routes

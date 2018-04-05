@@ -6,9 +6,13 @@ from flask.ext.restful import reqparse, abort, Resource, fields, marshal_with
 from ceryx.db import RedisRouter
 
 
+settings_fields = {
+    'enforce_https': fields.Boolean(default=False),
+}
 resource_fields = {
     'source': fields.String,
     'target': fields.String,
+    'settings': fields.Nested(settings_fields),
 }
 
 parser = reqparse.RequestParser()
@@ -32,7 +36,12 @@ def lookup_or_abort(source):
     Returns the target for the given source, or aborts raising a 404
     """
     try:
-        return {'source': source, 'target': router.lookup(source)}
+        resource = {
+	    'source': source,
+	    'target': router.lookup(source),
+	    'settings': router.lookup_settings(source),
+	}
+        return resource
     except RedisRouter.LookupNotFound:
         abort(
             404, message='Route with source {} doesn\'t exist'.format(source)
