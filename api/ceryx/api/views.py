@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from flask import request
+from flask import request 
 from flask.ext.restful import reqparse, abort, Resource, fields, marshal_with
 
 from ceryx.db import RedisRouter
@@ -22,10 +22,16 @@ parser.add_argument(
 parser.add_argument(
     'target', type=str, required=True, help='Target is required'
 )
+parser.add_argument(
+    'settings', type=dict,
+)
 
 update_parser = reqparse.RequestParser()
 update_parser.add_argument(
     'target', type=str, required=True, help='Target is required'
+)
+update_parser.add_argument(
+    'settings', type=dict,
 )
 
 router = RedisRouter.from_config()
@@ -84,7 +90,10 @@ class Route(Resource):
         given target
         """
         args = update_parser.parse_args()
-        router.insert(source, args['target'])
+        args['settings']['enforce_https'] = (
+            1 if args['settings']['enforce_https'] else 0
+        )
+        router.insert(source, **args)
         return args, 201
 
 
@@ -101,7 +110,7 @@ class RoutesList(Resource):
         given target
         """
         args = parser.parse_args()
-        router.insert(args['source'], args['target'])
+        router.insert(**args)
         return args, 201
 
     @marshal_with(resource_fields)

@@ -6,6 +6,28 @@ import redis
 from ceryx import settings
 
 
+def encode_settings(settings):
+    """
+    Encode and sanitize settings in order to be written to Redis.
+    """
+    encoded_settings = {
+        'enforce_https': str(int(settings.get('enforce_https', False)))
+    }
+
+    return encoded_settings
+
+
+def decode_settings(settings):
+    """
+    Decode and sanitize settings from Redis, in order to transport via HTTP
+    """
+    decoded = {
+        'enforce_https': bool(int(settings.get('enforce_https', False)))
+    }
+
+    return decoded
+
+
 class RedisRouter(object):
     """
     Router using a redis backend, in order to route incoming requests.
@@ -57,6 +79,15 @@ class RedisRouter(object):
             prefixed_key = self.prefix + ':settings:%s'
         prefixed_key = prefixed_key % source
         return prefixed_key
+    
+    def _set_settings_for_source(self, source, settings):
+        settings_key = self._prefixed_settings_key(source)
+
+        if settings:
+            encoded_settings = encode_settings(settings)
+            self.client.hmset(settings_key, encoded_settings)
+        else:
+            self.client.delete(settings_key)
 
     def lookup(self, host, silent=False):
         """
@@ -80,7 +111,8 @@ class RedisRouter(object):
         """
         key = self._prefixed_settings_key(host)
         settings = self.client.hgetall(key)
-        return settings or {}
+        decoded_settings = decode_settings(settings)
+        return decoded_settings
 
     def lookup_hosts(self, pattern):
         """
@@ -110,12 +142,13 @@ class RedisRouter(object):
             )
         return routes
 
-    def insert(self, source, target):
+    def insert(self, source, target, settings):
         """
         Inserts a new source/target host entry in to the database.
         """
-        source_key = self._prefixed_route_key(source)
-        self.client.set(source_key, target)
+        route_key = self._prefixed_route_key(source)
+        self.client.set(route_key, target)
+        self._set_settings_for_source(source, settings)
 
     def delete(self, source):
         """
