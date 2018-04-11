@@ -6,9 +6,13 @@ from flask.ext.restful import reqparse, abort, Resource, fields, marshal_with
 from ceryx.db import RedisRouter
 
 
+settings_fields = {
+    'enforce_https': fields.Boolean(default=False),
+}
 resource_fields = {
     'source': fields.String,
     'target': fields.String,
+    'settings': fields.Nested(settings_fields),
 }
 
 parser = reqparse.RequestParser()
@@ -18,10 +22,16 @@ parser.add_argument(
 parser.add_argument(
     'target', type=str, required=True, help='Target is required'
 )
+parser.add_argument(
+    'settings', type=dict,
+)
 
 update_parser = reqparse.RequestParser()
 update_parser.add_argument(
     'target', type=str, required=True, help='Target is required'
+)
+update_parser.add_argument(
+    'settings', type=dict,
 )
 
 router = RedisRouter.from_config()
@@ -32,7 +42,12 @@ def lookup_or_abort(source):
     Returns the target for the given source, or aborts raising a 404
     """
     try:
-        return {'source': source, 'target': router.lookup(source)}
+        resource = {
+            'source': source,
+            'target': router.lookup(source),
+            'settings': router.lookup_settings(source),
+        }
+        return resource
     except RedisRouter.LookupNotFound:
         abort(
             404, message='Route with source {} doesn\'t exist'.format(source)
@@ -75,7 +90,10 @@ class Route(Resource):
         given target
         """
         args = update_parser.parse_args()
-        router.insert(source, args['target'])
+        args['settings']['enforce_https'] = (
+            1 if args['settings']['enforce_https'] else 0
+        )
+        router.insert(source, **args)
         return args, 201
 
 
@@ -92,7 +110,7 @@ class RoutesList(Resource):
         given target
         """
         args = parser.parse_args()
-        router.insert(args['source'], args['target'])
+        router.insert(**args)
         return args, 201
 
     @marshal_with(resource_fields)
