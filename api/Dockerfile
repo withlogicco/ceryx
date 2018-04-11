@@ -6,7 +6,7 @@ RUN mkdir /etc/ceryx
 COPY Pipfile Pipfile.lock /etc/ceryx/
 
 WORKDIR  /etc/ceryx
-RUN pipenv install --system --deploy
+RUN pipenv install --system --dev --deploy
 
 COPY . /opt/ceryx
 WORKDIR /opt/ceryx

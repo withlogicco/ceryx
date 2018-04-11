@@ -16,8 +16,7 @@ def list_routes() -> typing.List[types.Route]:
 
 def create_route(route: types.Route) -> types.Route:
     ROUTER.insert(**route)
-    http.JSONResponse(route, status_code=201)
-    return route
+    return http.JSONResponse(route, status_code=201)
 
 
 def update_route(source: str, route: types.RouteWithoutSource) -> types.Route:
