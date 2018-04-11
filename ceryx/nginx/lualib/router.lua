@@ -2,6 +2,9 @@ local host = ngx.var.host
 local is_not_https = (ngx.var.scheme ~= "https")
 local cache = ngx.shared.ceryx
 
+local prefix = os.getenv("CERYX_REDIS_PREFIX")
+if not prefix then prefix = "ceryx" end
+
 local settings_key = prefix .. ":settings:" .. host
 local enforce_https, flags = cache:get(host .. ":enforce_https")
 
@@ -47,8 +50,6 @@ if redis_password then
 end
 
 -- Construct Redis key
-local prefix = os.getenv("CERYX_REDIS_PREFIX")
-if not prefix then prefix = "ceryx" end
 local key = prefix .. ":routes:" .. host
 
 -- Try to get target for host
