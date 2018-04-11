@@ -30,17 +30,19 @@ if redis_password then
     end
 end
 
-local settings_key = prefix .. ":settings:" .. host
-local enforce_https, flags = cache:get(host .. ":enforce_https")
+if is_not_https then
+    local settings_key = prefix .. ":settings:" .. host
+    local enforce_https, flags = cache:get(host .. ":enforce_https")
 
-if enforce_https == nil then
-    local res, flags = red:hget(settings_key, "enforce_https")
-    enforce_https = tonumber(res)
-    cache:set(host .. ":enforce_https", enforce_https, 5)
-end
+    if enforce_https == nil then
+        local res, flags = red:hget(settings_key, "enforce_https")
+        enforce_https = tonumber(res)
+        cache:set(host .. ":enforce_https", enforce_https, 5)
+    end
 
-if enforce_https and is_not_https then
-    return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
+    if enforce_https then
+        return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
+    end
 end
 
 -- Check if key exists in local cache
