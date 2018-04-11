@@ -5,26 +5,7 @@ local cache = ngx.shared.ceryx
 local prefix = os.getenv("CERYX_REDIS_PREFIX")
 if not prefix then prefix = "ceryx" end
 
-local settings_key = prefix .. ":settings:" .. host
-local enforce_https, flags = cache:get(host .. ":enforce_https")
-
-if enforce_https == nil then
-    local res, flags = red:hget(settings_key, "enforce_https")
-    enforce_https = tonumber(res)
-    cache:set(host .. ":enforce_https", enforce_https, 5)
-end
-
-if enforce_https and is_not_https then
-    return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
-end
-
--- Check if key exists in local cache
-res, flags = cache:get(host)
-if res then
-    ngx.var.container_url = res
-    return
-end
-
+-- Prepare the Redis client
 local redis = require "resty.redis"
 local red = redis:new()
 red:set_timeout(100) -- 100 ms
@@ -47,6 +28,26 @@ if redis_password then
         ngx.ERR("Failed to authenticate Redis: ", err)
         return
     end
+end
+
+local settings_key = prefix .. ":settings:" .. host
+local enforce_https, flags = cache:get(host .. ":enforce_https")
+
+if enforce_https == nil then
+    local res, flags = red:hget(settings_key, "enforce_https")
+    enforce_https = tonumber(res)
+    cache:set(host .. ":enforce_https", enforce_https, 5)
+end
+
+if enforce_https and is_not_https then
+    return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
+end
+
+-- Check if key exists in local cache
+res, flags = cache:get(host)
+if res then
+    ngx.var.container_url = res
+    return
 end
 
 -- Construct Redis key
