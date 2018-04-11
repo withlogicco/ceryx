@@ -1,4 +1,5 @@
 .env
+.venv
 *.pyc
 production.yml
 dev.yml

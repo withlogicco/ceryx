@@ -1,3 +1,0 @@
-redis==2.10.3
-Flask==0.10.1
-Flask-RESTful==0.2.12

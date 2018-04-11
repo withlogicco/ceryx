@@ -6,6 +6,10 @@ import redis
 from ceryx import settings
 
 
+def _str(subject):
+    return subject.decode('utf-8') if type(subject) == bytes else str(bytes)
+
+
 def encode_settings(settings):
     """
     Encode and sanitize settings in order to be written to Redis.
@@ -21,8 +25,14 @@ def decode_settings(settings):
     """
     Decode and sanitize settings from Redis, in order to transport via HTTP
     """
+
+    # If any of the keys or values of the provided settings are bytes, then
+    # convert them to strings.
+    _settings = {
+        _str(k): _str(v) for k, v in settings.items()
+    }
     decoded = {
-        'enforce_https': bool(int(settings.get('enforce_https', '0')))
+        'enforce_https': bool(int(_settings.get('enforce_https', '0')))
     }
 
     return decoded
@@ -100,14 +110,14 @@ class RedisRouter(object):
         exception.
         """
         lookup_host = self._prefixed_route_key(host)
-
         target_host = self.client.get(lookup_host)
+
         if target_host is None and not silent:
             raise RedisRouter.LookupNotFound(
                 'Given host does not match with any route'
             )
         else:
-            return target_host
+            return target_host if type(target_host) == str else target_host.decode('utf-8')
 
     def lookup_settings(self, host):
         """
@@ -127,9 +137,11 @@ class RedisRouter(object):
             pattern = '*'
         lookup_pattern = self._prefixed_route_key(pattern)
         keys = self.client.keys(lookup_pattern)
-        return [key[len(lookup_pattern) - len(pattern):] for key in keys]
+        filtered_keys = [key[len(lookup_pattern) - len(pattern):] for key in keys]
+        decoded_keys = [key.decode('utf-8') for key in filtered_keys]
+        return decoded_keys
 
-    def lookup_routes(self, pattern):
+    def lookup_routes(self, pattern='*'):
         """
         Fetches routes with host that matches the given pattern. If no pattern
         is given, all routes are returned.
@@ -139,7 +151,7 @@ class RedisRouter(object):
         for host in hosts:
             routes.append(
                 {
-                    'source': host,
+                    'source': host if type(host) == str else host.decode('utf-8'),
                     'target': self.lookup(host, silent=True),
                     'settings': self.lookup_settings(host),
                 }
