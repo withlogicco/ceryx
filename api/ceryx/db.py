@@ -80,6 +80,10 @@ class RedisRouter(object):
         prefixed_key = prefixed_key % source
         return prefixed_key
     
+    def _delete_settings_for_source(self, source):
+        settings_key = self._prefixed_settings_key(source)
+        self.client.delete(settings_key)
+    
     def _set_settings_for_source(self, source, settings):
         settings_key = self._prefixed_settings_key(source)
 
@@ -87,7 +91,7 @@ class RedisRouter(object):
             encoded_settings = encode_settings(settings)
             self.client.hmset(settings_key, encoded_settings)
         else:
-            self.client.delete(settings_key)
+            self._delete_settings_for_source(source)
 
     def lookup(self, host, silent=False):
         """
@@ -156,3 +160,4 @@ class RedisRouter(object):
         """
         source_key = self._prefixed_route_key(source)
         self.client.delete(source_key)
+        self._delete_settings_for_source(source)
