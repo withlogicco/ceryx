@@ -5,7 +5,7 @@ python:
 
 install:
   - pip install pipenv==11.9
-  - pipenv install --dev --deploy --system
+  - bash -c "cd api && pipenv install --dev --deploy --system"
 
 services:
   - redis-server

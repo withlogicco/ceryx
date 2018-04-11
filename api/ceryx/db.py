@@ -117,7 +117,7 @@ class RedisRouter(object):
                 'Given host does not match with any route'
             )
         else:
-            return target_host if type(target_host) == str else target_host.decode('utf-8')
+            return _str(target_host)
 
     def lookup_settings(self, host):
         """
@@ -138,8 +138,7 @@ class RedisRouter(object):
         lookup_pattern = self._prefixed_route_key(pattern)
         keys = self.client.keys(lookup_pattern)
         filtered_keys = [key[len(lookup_pattern) - len(pattern):] for key in keys]
-        decoded_keys = [key.decode('utf-8') for key in filtered_keys]
-        return decoded_keys
+        return [_str(key) for key in filtered_keys]
 
     def lookup_routes(self, pattern='*'):
         """
@@ -151,7 +150,7 @@ class RedisRouter(object):
         for host in hosts:
             routes.append(
                 {
-                    'source': host if type(host) == str else host.decode('utf-8'),
+                    'source': host,
                     'target': self.lookup(host, silent=True),
                     'settings': self.lookup_settings(host),
                 }
