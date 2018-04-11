@@ -14,7 +14,19 @@ def list_routes() -> typing.List[types.Route]:
     return [types.Route(route) for route in routes]
 
 
-def get_route(source: str) -> dict:
+def create_route(route: types.Route) -> types.Route:
+    ROUTER.insert(**route)
+    http.JSONResponse(route, status_code=201)
+    return route
+
+
+def update_route(source: str, route: types.RouteWithoutSource) -> types.Route:
+    ROUTER.insert(source, **route)
+    updated_route = dict(source=source, **route)
+    return types.Route(updated_route)
+
+
+def get_route(source: str) -> types.Route:
     try:
         resource = {
             'source': source,
@@ -29,9 +41,31 @@ def get_route(source: str) -> dict:
         )
 
 
+def delete_route(source: str) -> types.Route:
+    try:
+        route = {
+            'source': source,
+            'target': ROUTER.lookup(source),
+            'settings': ROUTER.lookup_settings(source),
+        }
+        ROUTER.delete(source)
+        return http.JSONResponse(
+            types.Route(route),
+            status_code=204,
+        )
+    except RedisRouter.LookupNotFound:
+        return http.JSONResponse(
+            {'message': f'Route with source {source} doesn\'t exist'},
+            status_code=404,
+        )
+
+
 routes = [
     Route('/api/routes/', method='GET', handler=list_routes),
+    Route('/api/routes/', method='POST', handler=create_route),
     Route('/api/routes/{source}/', method='GET', handler=get_route),
+    Route('/api/routes/{source}/', method='PUT', handler=update_route),
+    Route('/api/routes/{source}/', method='DELETE', handler=delete_route),
 ]
 
 app = App(routes=routes)
