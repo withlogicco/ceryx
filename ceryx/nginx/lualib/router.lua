@@ -19,13 +19,6 @@ end
 res, flags = cache:get(host)
 if res then
     ngx.var.container_url = res
-    
-    local enforce_https, flags = cache:get(host .. ":enforce_https")
-
-    if enforce_https and is_not_https then
-        return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
-    end
-
     return
 end
 
