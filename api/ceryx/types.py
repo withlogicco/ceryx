@@ -13,7 +13,7 @@ class RouteWithoutSource(types.Type):
     )
 
 
-class Route(RouteWithoutSource):
+class Route(types.Type):
     source = validators.String()
     target = validators.String()
     settings = validators.Object(
