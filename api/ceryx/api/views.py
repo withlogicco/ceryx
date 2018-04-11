@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from flask import request 
+from flask import request
 from flask.ext.restful import reqparse, abort, Resource, fields, marshal_with
 
 from ceryx.db import RedisRouter

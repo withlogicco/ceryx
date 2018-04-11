@@ -22,7 +22,7 @@ def decode_settings(settings):
     Decode and sanitize settings from Redis, in order to transport via HTTP
     """
     decoded = {
-        'enforce_https': bool(int(settings.get('enforce_https', False)))
+        'enforce_https': bool(int(settings.get('enforce_https', '0')))
     }
 
     return decoded
