@@ -70,4 +70,3 @@ end
 cache:set(host, res, 5)
 
 ngx.var.container_url = res
-
