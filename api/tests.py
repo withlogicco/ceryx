@@ -16,7 +16,7 @@ class CeryxTestCase(unittest.TestCase):
         """
         Assert that listing routes will return a JSON list.
         """
-        response = self.client.get('/api/routes/')
+        response = self.client.get('/api/routes')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(type(response.json()), list)
 
@@ -37,12 +37,12 @@ class CeryxTestCase(unittest.TestCase):
         }
         
         # Create a route and assert valid data in response
-        response = self.client.post('/api/routes/', json=route_data)
+        response = self.client.post('/api/routes', json=route_data)
         self.assertEqual(response.status_code, 201)
         self.assertDictEqual(response.json(), expected_response)
         
         # Also get the route and assert valid data
-        response = self.client.get('/api/routes/test.dev/')
+        response = self.client.get('/api/routes/test.dev')
         self.assertDictEqual(response.json(), expected_response)
 
     def test_enforce_https(self):
@@ -76,35 +76,35 @@ class CeryxTestCase(unittest.TestCase):
             },
         }
         
-        response = self.client.post('/api/routes/', json=route_without_enforce_https)
+        response = self.client.post('/api/routes', json=route_without_enforce_https)
         self.assertEqual(response.status_code, 201)
         self.assertDictEqual(
             response.json(), expected_response_without_enforce_https,
         )
         
-        response = self.client.get('/api/routes/test-no-enforce-https.dev/')
+        response = self.client.get('/api/routes/test-no-enforce-https.dev')
         self.assertDictEqual(
             response.json(), expected_response_without_enforce_https,
         )
         
-        response = self.client.post('/api/routes/', json=route_enforce_https_true)
+        response = self.client.post('/api/routes', json=route_enforce_https_true)
         self.assertEqual(response.status_code, 201)
         self.assertDictEqual(
             response.json(), route_enforce_https_true,
         )
         
-        response = self.client.get('/api/routes/test-enforce-https-true.dev/')
+        response = self.client.get('/api/routes/test-enforce-https-true.dev')
         self.assertDictEqual(
             response.json(), route_enforce_https_true,
         )
         
-        response = self.client.post('/api/routes/', json=route_enforce_https_false)
+        response = self.client.post('/api/routes', json=route_enforce_https_false)
         self.assertEqual(response.status_code, 201)
         self.assertDictEqual(
             response.json(), route_enforce_https_false,
         )
         
-        response = self.client.get('/api/routes/test-enforce-https-false.dev/')
+        response = self.client.get('/api/routes/test-enforce-https-false.dev')
         self.assertDictEqual(
             response.json(), route_enforce_https_false,
         )
@@ -119,14 +119,14 @@ class CeryxTestCase(unittest.TestCase):
         }
         
         # Create a route
-        response = self.client.post('/api/routes/', json=route_data)
+        response = self.client.post('/api/routes', json=route_data)
         
         # Delete the route
-        response = self.client.delete('/api/routes/test.dev/')
+        response = self.client.delete('/api/routes/test.dev')
         self.assertEqual(response.status_code, 204)
         
         # Also get the route and assert that it does not exist
-        response = self.client.get('/api/routes/test.dev/')
+        response = self.client.get('/api/routes/test.dev')
         self.assertEqual(response.status_code, 404)
         
 

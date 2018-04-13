@@ -60,11 +60,18 @@ def delete_route(source: str) -> types.Route:
 
 
 routes = [
-    Route('/api/routes/', method='GET', handler=list_routes),
-    Route('/api/routes/', method='POST', handler=create_route),
-    Route('/api/routes/{source}/', method='GET', handler=get_route),
-    Route('/api/routes/{source}/', method='PUT', handler=update_route),
-    Route('/api/routes/{source}/', method='DELETE', handler=delete_route),
+    Route('/api/routes', method='GET', handler=list_routes),
+    Route('/api/routes', method='POST', handler=create_route),
+    Route('/api/routes/{source}', method='GET', handler=get_route),
+    Route('/api/routes/{source}', method='PUT', handler=update_route),
+    Route('/api/routes/{source}', method='DELETE', handler=delete_route),
+
+    # Allow trailing slashes as well (GitHub style)
+    Route('/api/routes/', method='GET', handler=list_routes, name='list_routes_trailing_slash'),
+    Route('/api/routes/', method='POST', handler=create_route, name='create_route_trailing_slash'),
+    Route('/api/routes/{source}/', method='GET', handler=get_route, name='get_route_trailing_slash'),
+    Route('/api/routes/{source}/', method='PUT', handler=update_route, name='update_route_trailing_slash'),
+    Route('/api/routes/{source}/', method='DELETE', handler=delete_route, name='delete_route_trailing_slash'),
 ]
 
 app = App(routes=routes)
