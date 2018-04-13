@@ -1,10 +1,11 @@
 language: python
 
 python:
-  - 2.7
+  - 3.6
 
 install:
-  - pip install -r api/requirements-dev.txt
+  - pip install pipenv==11.9
+  - bash -c "cd api && pipenv install --dev --deploy --system"
 
 services:
   - redis-server

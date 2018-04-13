@@ -1,10 +1,12 @@
 .env
+.venv
 *.pyc
 production.yml
 dev.yml
 data
 docker-compose.yaml
 .stolos
+.vscode
 
 # Ignore Vim files
 *.swp

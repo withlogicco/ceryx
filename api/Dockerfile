@@ -1,11 +1,14 @@
-FROM python:2.7.11
-MAINTAINER Antonis Kalipetis <akalipetis@gmail.com>
+FROM python:3.6
 
-ARG PIP_REQUIREMENTS_FILE=requirements.txt
+RUN pip install pipenv==11.9.0
+
+RUN mkdir /etc/ceryx
+COPY Pipfile Pipfile.lock /etc/ceryx/
+
+WORKDIR  /etc/ceryx
+RUN pipenv install --system --dev --deploy
 
 COPY . /opt/ceryx
 WORKDIR /opt/ceryx
 
-RUN pip install -r $PIP_REQUIREMENTS_FILE
-
-CMD python server.py
+CMD python app.py

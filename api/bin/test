@@ -4,4 +4,6 @@
 
 set -e
 
+export CERYX_REDIS_PREFIX=ceryxtests
+
 nosetests
