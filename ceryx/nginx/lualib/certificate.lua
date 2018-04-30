@@ -69,8 +69,8 @@ if run_ssl_discovery then
 	ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
     end
 else
-    ngx.log(ngx.STDERR, "Did not find SSL Certificate for " .. domain .. " in Redis. Using to automatic Let's Encrypt.")
+    ngx.log(ngx.STDERR, "Did not find SSL Certificate in Redis. Using to automatic Let's Encrypt.")
     auto_ssl:ssl_certificate()
 end
 
-ngx.log(ngx.STDERR, "Completed SSL negotiation for " .. domain)
+ngx.log(ngx.STDERR, "Completed SSL negotiation.")
