@@ -1,24 +1,32 @@
 local ssl = require "ngx.ssl"
 local get_redis_client = require "redis_client"
 
-local domain, err = ssl.server_name()
-local red = get_redis_client()
-
 local prefix = os.getenv("CERYX_REDIS_PREFIX")
 if not prefix then prefix = "ceryx" end
 
-ngx.log(ngx.STDERR, "Searching for SSL Certificate for " .. domain)
+local run_ssl_discovery = true
 
-local certificate_key = prefix .. ":certificates:" .. domain
-local certificate, err = red:hgetall(certificate_key)
+local domain, err = ssl.server_name()
+local red = get_redis_client()
 
-if err then
-    ngx.log(ngx.STDERR, "Redis error: " .. err)
-    ngx.exit()
+if domain == nil then
+    run_ssl_discovery = false
+else
+    ngx.log(ngx.STDERR, "Searching for SSL Certificate for " .. domain)
+
+    local certificate_key = prefix .. ":certificates:" .. domain
+    local certificate, err = red:hgetall(certificate_key)
+
+    if err then
+        ngx.log(ngx.STDERR, "Redis error: " .. err)
+        ngx.exit()
+    end
+
+    -- Check if "certificate" is an empty table
+    run_ssl_discovery = next(certificate) ~= nil
 end
 
--- Check if "certificate" is an empty table
-if next(certificate) ~= nil then
+if run_ssl_discovery then
     ngx.log(ngx.STDERR, "Found SSL Certificate for " .. domain .. " in Redis. Using this.")
 
     local path_to_bundle = certificate[2]
