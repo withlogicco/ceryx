@@ -9,7 +9,7 @@ services:
     depends_on:
       - redis
     environment:
-      CERYX_DISABLE_LE: ${CERYX_DISABLE_LE:-false}
+      CERYX_DISABLE_LETS_ENCRYPT: ${CERYX_DISABLE_LETS_ENCRYPT:-false}
       CERYX_DOCKERIZE_EXTRA_ARGS: -no-overwrite
       CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
       CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}

@@ -18,7 +18,7 @@ server {
     ssl_certificate_key {{ default .Env.CERYX_SSL_CERT "/etc/ssl/resty-auto-ssl-fallback.key" }};
 
     # Disable the LE certificate generation
-    {{ if ne (lower (default .Env.CERYX_DISABLE_LE "")) "true" }}
+    {{ if ne (lower (default .Env.CERYX_DISABLE_LETS_ENCRYPT "")) "true" }}
     ssl_certificate_by_lua_block {
         auto_ssl:ssl_certificate()
     }

@@ -24,7 +24,7 @@ configuration options are the following:
   * ``CERYX_API_HOSTNAME``: identical to `CERYX_SERVER_NAME`, but without imposing `Host` header limits - default to None
   * ``CERYX_API_PORT``: sets the port that the API will listen - defaults to 5555
   * ``CERYX_DEBUG``: enables debugging on the API service - defaults to true
-  * ``CERYX_DISABLE_LE``: if true, the automatic generation through Let's Encrypt does not kick in, defaults to false
+  * ``CERYX_DISABLE_LETS_ENCRYPT``: if true, the automatic generation through Let's Encrypt does not kick in, defaults to false
   * ``CERYX_DNS_RESOLVER``: the IP of the DNS resolver to use, defaults to 127.0.0.11 — the Docker DNS resolver
   * ``CERYX_DOCKERIZE_EXTRA_ARGS``: extra arguments, to pass to `dockerize`
   * ``CERYX_NAME``: sets the API service name - defaults to ceryx
@@ -71,7 +71,7 @@ or open o pull request.
 
 ## Dynamic SSL certificates
 
-By default, Ceryx will try to generate a certificate when a domain is hit via HTTPS through Let's Encrypt, if and only if a route exists for it. If you don't want this to be enabled, you can use the `CERYX_DISABLE_LE` setting.
+By default, Ceryx will try to generate a certificate when a domain is hit via HTTPS through Let's Encrypt, if and only if a route exists for it. If you don't want this to be enabled, you can use the `CERYX_DISABLE_LETS_ENCRYPT` setting.
 
 ## License
 
