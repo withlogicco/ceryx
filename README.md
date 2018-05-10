@@ -20,17 +20,28 @@ a REST client.
 Ceryx supports configuration using environment variables. The supported
 configuration options are the following:
 
-  * ``CERYX_NAME``: sets the API service name - defaults to ceryx
-  * ``CERYX_DEBUG``: enables debuging on the API service - defaults to true
   * ``CERYX_API_HOST``: sets the host that the API will bind to - defaults to 127.0.0.1
-  * ``CERYX_API_PORT``: sets the port that the API will listen - defaults to 5555
-  * ``CERYX_SERVER_NAME``: the URL of the API service - default to None
   * ``CERYX_API_HOSTNAME``: identical to `CERYX_SERVER_NAME`, but without imposing `Host` header limits - default to None
-  * ``CERYX_SECRET_KEY``: the path of the secret key to use - defaults to None
+  * ``CERYX_API_PORT``: sets the port that the API will listen - defaults to 5555
+  * ``CERYX_DEBUG``: enables debugging on the API service - defaults to true
+  * ``CERYX_DISABLE_LE``: if true, the automatic generation through Let's Encrypt does not kick in, defaults to false
+  * ``CERYX_DNS_RESOLVER``: the IP of the DNS resolver to use, defaults to 127.0.0.11 — the Docker DNS resolver
+  * ``CERYX_DOCKERIZE_EXTRA_ARGS``: extra arguments, to pass to `dockerize`
+  * ``CERYX_NAME``: sets the API service name - defaults to ceryx
   * ``CERYX_REDIS_HOST``: the redis host to connect to - defaults to 127.0.0.1
-  * ``CERYX_REDIS_PORT``: the redis port to connect to - defaults to 6379
   * ``CERYX_REDIS_PASSWORD``: the redis password to use - defaults to none
+  * ``CERYX_REDIS_PORT``: the redis port to connect to - defaults to 6379
   * ``CERYX_REDIS_PREFIX``: the redis prefix to use in keys - defaults to ceryx
+  * ``CERYX_SECRET_KEY``: the path of the secret key to use - defaults to None
+  * ``CERYX_SERVER_NAME``: the URL of the API service - default to None
+  * ``CERYX_SSL_CERT_KEY``: the path to the SSL certificate key to use as fallback, defaults to a randomly generated key
+  * ``CERYX_SSL_CERT``: the path to the SSL certificate to use as fallback, defaults to a randomly generated certificate
+
+If you're not using the [`sourcelair/ceryx`](https://hub.docker.com/r/sourcelair/ceryx/) image, you'll need to use a command similar to the one below, to generate the configuration files needed from the environment, using [`dockerize`](https://github.com/jwilder/dockerize), through the [`entrypoint.sh`](ceryx/bin/entrypoint.sh) script.
+
+```bash
+bash ceryx/nginx/entrypoint.sh /usr/local/openresty/bin/openresty -g "daemon off;"
+```
 
 ## Quick Bootstrap
 Ceryx loves Docker, so you can easily bootstrap Ceryx using the following
@@ -60,7 +71,7 @@ or open o pull request.
 
 ## Dynamic SSL certificates
 
-You can read more information on how to configure Ceryx with Dynamic SSL certificates [here](docs/dynamic-ssl).
+By default, Ceryx will try to generate a certificate when a domain is hit via HTTPS through Let's Encrypt, if and only if a route exists for it. If you don't want this to be enabled, you can use the `CERYX_DISABLE_LE` setting.
 
 ## License
 

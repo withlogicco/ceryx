@@ -11,3 +11,7 @@ docker-compose.yaml
 # Ignore Vim files
 *.swp
 *.swo
+
+# Ignore generated files from template
+ceryx/nginx/conf/ceryx.conf
+ceryx/nginx/conf/nginx.conf

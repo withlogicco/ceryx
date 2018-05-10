@@ -14,11 +14,15 @@ server {
     listen 443 ssl;
     default_type text/html;
 
-    ssl_certificate /etc/ssl/resty-auto-ssl-fallback.crt;
-    ssl_certificate_key /etc/ssl/resty-auto-ssl-fallback.key;
+    ssl_certificate {{ default .Env.CERYX_SSL_CERT "/etc/ssl/resty-auto-ssl-fallback.crt" }};
+    ssl_certificate_key {{ default .Env.CERYX_SSL_CERT "/etc/ssl/resty-auto-ssl-fallback.key" }};
+
+    # Disable the LE certificate generation
+    {{ if ne (lower (default .Env.CERYX_DISABLE_LE "")) "true" }}
     ssl_certificate_by_lua_block {
         auto_ssl:ssl_certificate()
     }
+    {{ end }}
 
     location /.well-known/acme-challenge {
         content_by_lua_block {

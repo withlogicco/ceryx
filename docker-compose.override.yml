@@ -6,7 +6,9 @@ services:
     volumes:
       - ./ceryx/nginx/conf:/usr/local/openresty/nginx/conf
       - ./ceryx/nginx/lualib:/usr/local/openresty/nginx/lualib
-      - ./ceryx/nginx/sites-enabled:/usr/local/openresty/nginx/sites-enabled
+    environment:
+      CERYX_DEBUG: ${CERYX_DEBUG:-true}
+      CERYX_DOCKERIZE_EXTRA_ARGS: ""
 
   api:
     build:
