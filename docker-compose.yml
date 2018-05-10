@@ -9,8 +9,14 @@ services:
     depends_on:
       - redis
     environment:
+      CERYX_DISABLE_LETS_ENCRYPT: ${CERYX_DISABLE_LETS_ENCRYPT:-false}
+      CERYX_DOCKERIZE_EXTRA_ARGS: -no-overwrite
       CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
       CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
+    command:
+      - usr/local/openresty/bin/openresty
+      - -g
+      - daemon off;
       
   api:
     image: sourcelair/ceryx-api:latest
@@ -18,12 +24,12 @@ services:
       - redis
       - ceryx
     environment:
+      CERYX_API_HOST: ${CERYX_API_HOST:-0.0.0.0}
+      CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-localhost}
+      CERYX_API_PORT: ${CERYX_API_PORT:-5555}
+      CERYX_DEBUG: ${CERYX_DEBUG:-false}
       CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
       CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
-      CERYX_API_HOST: ${CERYX_API_HOST:-0.0.0.0}
-      CERYX_API_PORT: ${CERYX_API_PORT:-5555}
-      CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-localhost}
-      CERYX_DEBUG: ${CERYX_DEBUG:-false}
       
   redis:
     image: redis:3.2.11-alpine

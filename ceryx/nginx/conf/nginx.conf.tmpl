@@ -19,7 +19,7 @@ http {
     tcp_nodelay on;
     keepalive_timeout 30s 30s;
     # Use the Docker internal DNS, pick your favorite if running outside of Docker
-    resolver 127.0.0.11;
+    resolver {{ default .Env.CERYX_DNS_RESOLVER "127.0.0.11" }};
 
     # Logging
     access_log /dev/stdout;
@@ -31,8 +31,11 @@ http {
     lua_shared_dict ceryx 1m;
     lua_shared_dict auto_ssl 1m;
     lua_shared_dict auto_ssl_settings 64k;
+    {{ if eq (lower (default .Env.CERYX_DEBUG "")) "true" }}
+    lua_code_cache off;
+    {{ else }}
     lua_code_cache on;
-
+    {{ end }}
     # see https://github.com/openresty/lua-resty-core
     init_by_lua_block  {
         auto_ssl = (require "resty.auto-ssl").new()
@@ -57,12 +60,24 @@ http {
             if not redis_host then redis_host = "127.0.0.1" end
             local redis_port = os.getenv("CERYX_REDIS_PORT")
             if not redis_port then redis_port = 6379 end
+            local redis_password = os.getenv("CERYX_REDIS_PASSWORD")
+            if not redis_password then redis_password = nil end
+
             local res, err = red:connect(redis_host, redis_port)
 
             -- Return if could not connect to Redis
             if not res then
                 ngx.log(ngx.ERR, "Error connecting to redis: " .. (err or ""))
                 return false
+            end
+
+            -- Authenticate with Redis if necessary
+            if redis_password then
+                local res, err = red:auth(redis_password)
+                if not res then
+                    ngx.log(ngx.ERR, "Failed to authenticate with redis: ", err)
+                    return false
+                end
             end
 
             -- Construct Redis key
@@ -87,13 +102,10 @@ http {
         if not redis_host then redis_host = "127.0.0.1" end
         local redis_port = os.getenv("CERYX_REDIS_PORT")
         if not redis_port then redis_port = 6379 end
-        local redis_password = os.getenv("CERYX_REDIS_PASSWORD")
-        if not redis_password then redis_password = nil end
         auto_ssl:set("storage_adapter", "resty.auto-ssl.storage_adapters.redis")
         auto_ssl:set("redis", {
             host = redis_host,
-            port = redis_port,
-            auth = redis_password
+            port = redis_port
         })
 
         auto_ssl:init()
@@ -106,5 +118,6 @@ http {
 
     # Includes
     include mime.types;
+    include ceryx.conf;
     include ../sites-enabled/*;
 }
