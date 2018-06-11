@@ -22,3 +22,5 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 
 COPY ./nginx/conf /usr/local/openresty/nginx/conf
 COPY ./nginx/lualib /usr/local/openresty/nginx/lualib
+
+CMD ["/usr/local/openresty/bin/openresty", "-g", "daemon off;"]
