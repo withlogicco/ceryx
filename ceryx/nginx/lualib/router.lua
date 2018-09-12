@@ -40,7 +40,7 @@ if is_not_https then
         cache:set(host .. ":enforce_https", enforce_https, 5)
     end
 
-    if enforce_https then
+    if enforce_https == 1 then
         return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
     end
 end
