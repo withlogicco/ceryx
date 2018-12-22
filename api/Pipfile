@@ -4,8 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-apistar = "*"
+apistar = "==0.4.3"
 redis = "*"
+requests = ">=2.21.0"
 
 [dev-packages]
 nose = "*"
