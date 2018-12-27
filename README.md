@@ -6,7 +6,7 @@ Ceryx is the rock-solid, programmable reverse proxy used to provide tens of thou
 
 ## High-level architecture
 
-One of the main traits of Ceryx that makes it rock-solid is the simplicity in its design. Ceryx is comprised of two components and a Redis backend: the HTTP(S) reverse proxy and ajn API.
+One of the main traits of Ceryx that makes it rock-solid is the simplicity in its design. Ceryx is comprised of two components and a Redis backend: the HTTP(S) reverse proxy and an API.
 
 ### Proxy
 Ceryx uses NGINX OpenResty under the hood to route requests, based on the HTTP request's `Host` header or the [Server Name Indication](https://en.wikipedia.org/wiki/Server_Name_Indication) in HTTPS requests. Ceryx queries the Redis backend to decide to which target it should route each request.
