@@ -21,11 +21,13 @@ RUN /usr/local/openresty/luajit/bin/luarocks install lua-resty-auto-ssl 0.12.0
 RUN mkdir /etc/resty-auto-ssl/
 RUN chown -R $user:$group /etc/resty-auto-ssl/
 
-# Add the entrypoint script
-COPY ./bin/entrypoint.sh /entrypoint.sh
-ENTRYPOINT [ "/entrypoint.sh" ]
+RUN rm -f /usr/local/openresty/nginx/conf
 
 COPY ./nginx/conf /usr/local/openresty/nginx/conf
 COPY ./nginx/lualib /usr/local/openresty/nginx/lualib
+
+# Add the entrypoint script
+COPY ./bin/entrypoint.sh /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
 
 CMD ["/usr/local/openresty/bin/openresty", "-g", "daemon off;"]
