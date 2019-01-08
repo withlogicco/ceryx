@@ -55,23 +55,9 @@ server {
         proxy_pass http://$container_url$request_uri;
     }
 
-    error_page 502 @bad_gateway;
-    location @bad_gateway {
-        set $fallback_url "";
-
-        # Get fallback URL from environment
-        access_by_lua_block {
-            ngx.var.fallback_url = os.getenv("CERYX_FALLBACK")
-            if not ngx.var.fallback_url then ngx.var.fallback_url = "www.something.com" end
-        }
-
-        # Proxy configuration
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Real-IP  $remote_addr;
-        proxy_set_header X-Forwarded-Proto $proxy_set_x_forwarded_proto;
-
-        proxy_pass http://$fallback_url$request_uri;
+    error_page 503 /503.html;
+    location = /503.html {
+        root /etc/ceryx/static;
     }
 }
 

@@ -25,6 +25,7 @@ RUN rm -f /usr/local/openresty/nginx/conf/*
 
 COPY ./nginx/conf /usr/local/openresty/nginx/conf
 COPY ./nginx/lualib /usr/local/openresty/nginx/lualib
+COPY ./static /etc/ceryx/static
 
 # Add the entrypoint script
 COPY ./bin/entrypoint.sh /entrypoint.sh

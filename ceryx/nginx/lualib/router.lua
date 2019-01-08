@@ -24,7 +24,7 @@ local res, err = red:connect(redis_host, redis_port)
 
 -- Return if could not connect to Redis
 if not res then
-    return ngx.exit(ngx.HTTP_BAD_GATEWAY)
+    return ngx.exit(ngx.HTTP_SERVER_ERROR)
 end
 
 if redis_password then
@@ -71,7 +71,7 @@ else
         res, err = red:get(key)
         if not res or res == ngx.null then
             ngx.log(ngx.INFO, "No $wildcard target configured for fallback. Exiting with Bad Gateway.")
-            return ngx.exit(ngx.HTTP_BAD_GATEWAY)
+            return ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
         else
             ngx.log(ngx.DEBUG, "Falling back to " .. res .. ".")
         end
