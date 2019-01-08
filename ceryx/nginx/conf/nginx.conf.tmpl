@@ -37,12 +37,16 @@ http {
     lua_code_cache on;
     {{ end }}
 
-    # see https://github.com/openresty/lua-resty-core
+    {{ if ne (lower (default .Env.CERYX_DISABLE_LETS_ENCRYPT "")) "true" }}
+    # Enable automatic Let's Encryps certificate generation, if
+    # `CERYX_DISABLE_LETS_ENCRYPT` is *not* set to `true`.
+    # Check out https://github.com/openresty/lua-resty-core
     init_by_lua_file "lualib/https.lua";
 
     init_worker_by_lua_block {
         auto_ssl:init_worker()
     }
+    {{ end }}
 
     # Includes
     include mime.types;
