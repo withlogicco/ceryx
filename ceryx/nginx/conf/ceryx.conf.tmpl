@@ -59,6 +59,11 @@ server {
     location = /503.html {
         root /etc/ceryx/static;
     }
+
+    error_page 500 /500.html;
+    location = /500.html {
+        root /etc/ceryx/static;
+    }
 }
 
 {{ if ne (lower (default .Env.CERYX_DISABLE_LETS_ENCRYPT "")) "true" }}

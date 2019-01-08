@@ -11,6 +11,7 @@ local prefix = os.getenv("CERYX_REDIS_PREFIX")
 if not prefix then prefix = "ceryx" end
 
 -- Prepare the Redis client
+ngx.log(ngx.DEBUG, "Preparing Redis client.")
 local redis = require "resty.redis"
 local red = redis:new()
 red:set_timeout(100) -- 100 ms
@@ -24,16 +25,21 @@ local res, err = red:connect(redis_host, redis_port)
 
 -- Return if could not connect to Redis
 if not res then
+    ngx.log(ngx.DEBUG, "Could not prepare Redis client: " .. err)
     return ngx.exit(ngx.HTTP_SERVER_ERROR)
 end
 
+ngx.log(ngx.DEBUG, "Redis client prepared.")
+
 if redis_password then
+    ngx.log(ngx.DEBUG, "Authenticating with Redis.")
     local res, err = red:auth(redis_password)
     if not res then
-        ngx.ERR("Failed to authenticate Redis: ", err)
-        return
+        ngx.ERR("Could not authenticate with Redis: ", err)
+        return ngx.exit(ngx.HTTP_SERVER_ERROR)
     end
 end
+ngx.log(ngx.DEBUG, "Authenticated with Redis.")
 
 if is_not_https then
     local settings_key = prefix .. ":settings:" .. host
