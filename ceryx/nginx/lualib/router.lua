@@ -2,6 +2,11 @@ local host = ngx.var.host
 local is_not_https = (ngx.var.scheme ~= "https")
 local cache = ngx.shared.ceryx
 
+function route(source, target)
+    ngx.var.container_url = target
+    ngx.log(ngx.INFO, "Routing request for " .. source .. " to " .. target .. ".")
+end
+
 local prefix = os.getenv("CERYX_REDIS_PREFIX")
 if not prefix then prefix = "ceryx" end
 
@@ -48,27 +53,32 @@ end
 -- Check if key exists in local cache
 res, flags = cache:get(host)
 if res then
-    ngx.var.container_url = res
-    return
-end
+    ngx.log(ngx.DEBUG, "Cache hit for " .. host .. ".")
+    route(host, res)
+else
+    ngx.log(ngx.DEBUG, "Cache miss for " .. host .. ".")
 
--- Construct Redis key
-local key = prefix .. ":routes:" .. host
-
--- Try to get target for host
-res, err = red:get(key)
-if not res or res == ngx.null then
-    -- Construct Redis key for $wildcard
-    key = prefix .. ":routes:$wildcard"
+    -- Construct Redis key
+    local key = prefix .. ":routes:" .. host
+    
+    -- Try to get target for host
     res, err = red:get(key)
     if not res or res == ngx.null then
-        return ngx.exit(ngx.HTTP_BAD_GATEWAY)
+        ngx.log(ngx.INFO, "Could not find target for " .. host .. ".")
+
+        -- Construct Redis key for $wildcard
+        key = prefix .. ":routes:$wildcard"
+        res, err = red:get(key)
+        if not res or res == ngx.null then
+            ngx.log(ngx.INFO, "No $wildcard target configured for fallback. Exiting with Bad Gateway.")
+            return ngx.exit(ngx.HTTP_BAD_GATEWAY)
+        else
+            ngx.log(ngx.DEBUG, "Falling back to " .. res .. ".")
+        end
     end
-    ngx.var.container_url = res
-    return
 end
 
 -- Save found key to local cache for 5 seconds
+route(host, res)
 cache:set(host, res, 5)
-
-ngx.var.container_url = res
+ngx.log(ngx.DEBUG, "Saving route from " .. host .. " to " .. res .. " in local cache for 5 seconds.")
