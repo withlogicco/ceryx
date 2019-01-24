@@ -12,11 +12,7 @@ services:
       CERYX_DOCKERIZE_EXTRA_ARGS: ""
 
   api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-      args:
-        PIP_REQUIREMENTS_FILE: requirements-dev.txt
+    build: ./api
     volumes:
       - ./api:/opt/ceryx
     environment:
