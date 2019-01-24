@@ -1,0 +1,11 @@
+#! /bin/bash
+
+set -eux
+
+image=$(docker build -q actions/$1)
+docker run \
+            -ti \
+            -v $PWD:/github/workspace \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            --workdir /github/workspace \
+            $image ${@:2}

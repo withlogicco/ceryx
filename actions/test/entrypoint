@@ -1,0 +1,47 @@
+#! /bin/bash
+
+set -eux
+
+echo "Launching Ceryx stack..."
+
+echo "  Launching Redis..."
+redis_container_id=$(docker run -d --label=com.sourcelair.ceryx.action=test redis:3.2.11-alpine)
+echo "  Redis launched. Container ID: ${redis_container_id}."
+
+echo "  Building Ceryx..."
+ceryx_image_id=$(docker build -q ceryx/)
+echo "  Ceryx built. Image ID: ${ceryx_image_id}."
+
+echo "  Launching Ceryx..."
+ceryx_container_id=$(
+    docker run \
+                -d \
+                --label=com.sourcelair.ceryx.action=test \
+                --network=container:${redis_container_id} \
+                --env-file=/etc/ceryx/.env.test ${ceryx_image_id}
+)
+echo "  Ceryx launched. Container ID: ${ceryx_container_id}."
+
+echo "  Building Ceryx API..."
+ceryx_api_image_id=$(docker build -q api/)
+echo "  Ceryx API built. Image ID: ${ceryx_api_image_id}."
+
+echo "  Launching Ceryx API..."
+ceryx_api_container_id=$(
+    docker run \
+                -d \
+                --label=com.sourcelair.ceryx.action=test \
+                --network=container:${redis_container_id} \
+                --env-file=/etc/ceryx/.env.test ${ceryx_api_image_id}
+)
+echo "  Ceryx API launched. Container ID: ${ceryx_api_container_id}."
+
+echo "Ceryx stack launched."
+
+echo "Running Ceryx tests..."
+bats ceryx/tests
+echo "Ran Ceryx tests..."
+
+echo "Cleaning up..."
+docker ps -aq --filter=label=com.sourcelair.ceryx.action=test | xargs docker rm -f 
+echo "Cleaned up."
