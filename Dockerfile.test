@@ -1,0 +1,18 @@
+FROM ubuntu:18.04
+
+RUN apt-get update && \
+    apt-get install -y curl httpie
+
+ARG bats_version=1.1.0
+RUN curl -sSL https://github.com/bats-core/bats-core/archive/v${bats_version}.tar.gz | tar -xz && \
+    ./bats-core-${bats_version}/install.sh /usr/local && \
+    rm -rf ./bats-core-${bats_version}
+
+ENV CERYX_DEBUG true
+ENV CERYX_DISABLE_LETS_ENCRYPT true
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+CMD ["bats", "ceryx/tests"]
