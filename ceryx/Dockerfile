@@ -21,6 +21,7 @@ RUN /usr/local/openresty/luajit/bin/luarocks install lua-resty-auto-ssl 0.12.0 &
     mkdir /etc/resty-auto-ssl/ &&\
     chown -R $user:$group /etc/resty-auto-ssl/
 
+# Clean up all existing NGINX configuration
 RUN rm -f /usr/local/openresty/nginx/conf/*
 
 COPY ./nginx/conf /usr/local/openresty/nginx/conf
