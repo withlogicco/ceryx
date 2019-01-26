@@ -17,8 +17,10 @@ server {
     ssl_certificate {{ default .Env.CERYX_SSL_CERT "/etc/ssl/resty-auto-ssl-fallback.crt" }};
     ssl_certificate_key {{ default .Env.CERYX_SSL_CERT_KEY "/etc/ssl/resty-auto-ssl-fallback.key" }};
 
-    # Disable the LE certificate generation
     {{ if ne (lower (default .Env.CERYX_DISABLE_LETS_ENCRYPT "")) "true" }}
+    # Generate Let's Encrypt certificates automatically, if
+    # `CERYX_DISABLE_LETS_ENCRYPT` is *not* set to `true`.
+
     ssl_certificate_by_lua_block {
         auto_ssl:ssl_certificate()
     }
@@ -53,27 +55,21 @@ server {
         proxy_pass http://$container_url$request_uri;
     }
 
-    error_page 502 @bad_gateway;
-    location @bad_gateway {
-        set $fallback_url "";
+    error_page 503 /503.html;
+    location = /503.html {
+        root /etc/ceryx/static;
+    }
 
-        # Get fallback URL from environment
-        access_by_lua_block {
-            ngx.var.fallback_url = os.getenv("CERYX_FALLBACK")
-            if not ngx.var.fallback_url then ngx.var.fallback_url = "www.something.com" end
-        }
-
-        # Proxy configuration
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Real-IP  $remote_addr;
-        proxy_set_header X-Forwarded-Proto $proxy_set_x_forwarded_proto;
-
-        proxy_pass http://$fallback_url$request_uri;
+    error_page 500 /500.html;
+    location = /500.html {
+        root /etc/ceryx/static;
     }
 }
 
-# Internal server running on port 8999 for handling certificate tasks.
+{{ if ne (lower (default .Env.CERYX_DISABLE_LETS_ENCRYPT "")) "true" }}
+# Launch the Let's Encrypt certificate internal server running on port 8999, if
+# `CERYX_DISABLE_LETS_ENCRYPT` is *not* set to `true`.
+
 server {
     listen 127.0.0.1:8999;
     client_body_buffer_size 1m;
@@ -84,3 +80,4 @@ server {
         }
     }
 }
+{{ end }}

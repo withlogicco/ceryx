@@ -32,6 +32,10 @@ Ceryx is configured with the following environment variables:
   - `CERYX_SSL_CERT_KEY`: The path to the fallback SSL certificate key (default: randomly generated)
   - `CERYX_SSL_CERT`: The path to the fallback SSL certificate (default: randomly generated)
 
+## Adjusting log level
+
+Ceryx will output logs of level to equal or higher of `info` by default. Setting `CERYX_DEBUG` to `true` will also output logs of `debug` level.
+
 ### Not running Ceryx as container?
 
 👋 **Heads up!** Ceryx is designed to be run inside a container using Docker or similar tools. 

@@ -3,14 +3,28 @@ language: python
 python:
   - 3.6
 
+env:
+  - DOCKER_COMPOSE_VERSION=1.23.2 COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml:docker-compose.test.yml
+
 install:
+  - pip install --upgrade --ignore-installed docker-compose==${DOCKER_COMPOSE_VERSION}
+  - docker-compose build
+
   - pip install pipenv==11.9
   - bash -c "cd api && pipenv install --dev --deploy --system"
 
 services:
   - redis-server
+  - docker
 
-script: bash -c "cd api && ./bin/test"
+script:
+  - docker-compose run api ./bin/test
+  - docker-compose run test
+
+addons:
+  apt:
+    packages:
+      - docker-ce
 
 notifications:
   email: false

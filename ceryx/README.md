@@ -18,7 +18,6 @@ services:
     environment:
       - CERYX_REDIS_HOST=redis
       - CERYX_REDIS_PORT=6379
-      - CERYX_FALLBACK=www.something.com
     restart: always
 
     ...

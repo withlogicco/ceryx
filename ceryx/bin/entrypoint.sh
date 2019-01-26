@@ -1,5 +1,14 @@
 #! /bin/bash
 
+set -ex
+
+if [ $CERYX_DEBUG == "true" ]
+  then
+    export CERYX_LOG_LEVEL=debug
+  else
+    export CERYX_LOG_LEVEL=info
+fi
+
 # Use Dockerize for templates and to wait for Redis
 /usr/local/bin/dockerize \
     ${CERYX_DOCKERIZE_EXTRA_ARGS} \

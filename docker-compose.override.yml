@@ -6,16 +6,13 @@ services:
     volumes:
       - ./ceryx/nginx/conf:/usr/local/openresty/nginx/conf
       - ./ceryx/nginx/lualib:/usr/local/openresty/nginx/lualib
+      - ./ceryx/static:/etc/ceryx/static
     environment:
       CERYX_DEBUG: ${CERYX_DEBUG:-true}
       CERYX_DOCKERIZE_EXTRA_ARGS: ""
 
   api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-      args:
-        PIP_REQUIREMENTS_FILE: requirements-dev.txt
+    build: ./api
     volumes:
       - ./api:/opt/ceryx
     environment:
