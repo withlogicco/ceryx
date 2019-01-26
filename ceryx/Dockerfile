@@ -17,9 +17,9 @@ RUN curl -fSslL https://github.com/jwilder/dockerize/releases/download/${DOCKERI
 
 # Install lua-resty-auto-ssl for dynamically generating certificates from LE
 # https://github.com/GUI/lua-resty-auto-ssl
-RUN /usr/local/openresty/luajit/bin/luarocks install lua-resty-auto-ssl 0.12.0
-RUN mkdir /etc/resty-auto-ssl/
-RUN chown -R $user:$group /etc/resty-auto-ssl/
+RUN /usr/local/openresty/luajit/bin/luarocks install lua-resty-auto-ssl 0.12.0 &&\
+    mkdir /etc/resty-auto-ssl/ &&\
+    chown -R $user:$group /etc/resty-auto-ssl/
 
 RUN rm -f /usr/local/openresty/nginx/conf/*
 
