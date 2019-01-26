@@ -18,7 +18,9 @@ services:
   - redis-server
   - docker
 
-script: docker-compose run api ./bin/test
+script:
+  - docker-compose run api ./bin/test
+  - docker-compose run test
 
 addons:
   apt:
