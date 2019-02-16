@@ -15,7 +15,8 @@ def encode_settings(settings):
     Encode and sanitize settings in order to be written to Redis.
     """
     encoded_settings = {
-        'enforce_https': str(int(settings.get('enforce_https', False)))
+        'enforce_https': str(int(settings.get('enforce_https', False))),
+        'mode': settings.get('mode', 'proxy'),
     }
 
     return encoded_settings
@@ -32,7 +33,8 @@ def decode_settings(settings):
         _str(k): _str(v) for k, v in settings.items()
     }
     decoded = {
-        'enforce_https': bool(int(_settings.get('enforce_https', '0')))
+        'enforce_https': bool(int(_settings.get('enforce_https', '0'))),
+        'mode': _settings.get('mode', 'proxy'),
     }
 
     return decoded

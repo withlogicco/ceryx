@@ -2,9 +2,14 @@ local host = ngx.var.host
 local is_not_https = (ngx.var.scheme ~= "https")
 local cache = ngx.shared.ceryx
 
-function route(source, target)
+function route(source, target, mode)
+    if mode == "redirect" then
+        ngx.log(ngx.INFO, "Redirecting request for " .. source .. " to " .. target .. ".")
+        return ngx.redirect(target, ngx.HTTP_MOVED_PERMANENTLY)
+    end
+
     ngx.var.container_url = target
-    ngx.log(ngx.INFO, "Routing request for " .. source .. " to " .. target .. ".")
+    ngx.log(ngx.INFO, "Proxying request for " .. source .. " to " .. target .. ".")
 end
 
 local prefix = os.getenv("CERYX_REDIS_PREFIX")
@@ -41,8 +46,9 @@ if redis_password then
 end
 ngx.log(ngx.DEBUG, "Authenticated with Redis.")
 
+local settings_key = prefix .. ":settings:" .. host
+
 if is_not_https then
-    local settings_key = prefix .. ":settings:" .. host
     local enforce_https, flags = cache:get(host .. ":enforce_https")
 
     if enforce_https == nil then
@@ -56,11 +62,14 @@ if is_not_https then
     end
 end
 
+-- Get routing mode
+local mode, mode_flags = red:hget(settings_key, "mode")
+
 -- Check if key exists in local cache
 res, flags = cache:get(host)
 if res then
     ngx.log(ngx.DEBUG, "Cache hit for " .. host .. ".")
-    route(host, res)
+    route(host, res, mode)
 else
     ngx.log(ngx.DEBUG, "Cache miss for " .. host .. ".")
 
@@ -85,6 +94,6 @@ else
 end
 
 -- Save found key to local cache for 5 seconds
-route(host, res)
+route(host, res, mode)
 cache:set(host, res, 5)
 ngx.log(ngx.DEBUG, "Saving route from " .. host .. " to " .. res .. " in local cache for 5 seconds.")
