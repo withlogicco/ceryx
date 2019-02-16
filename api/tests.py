@@ -33,6 +33,7 @@ class CeryxTestCase(unittest.TestCase):
             'target': 'localhost:11235',
             'settings': {
                 'enforce_https': False,
+                'mode': 'proxy',
             }
         }
         
@@ -59,6 +60,7 @@ class CeryxTestCase(unittest.TestCase):
             'target': 'localhost:11235',
             'settings': {
                 'enforce_https': True,
+                'mode': 'proxy',
             },
         }
         route_enforce_https_false = {
@@ -66,6 +68,7 @@ class CeryxTestCase(unittest.TestCase):
             'target': 'localhost:11235',
             'settings': {
                 'enforce_https': False,
+                'mode': 'proxy',
             },
         }
         expected_response_without_enforce_https = {
@@ -73,6 +76,7 @@ class CeryxTestCase(unittest.TestCase):
             'target': 'localhost:11235',
             'settings': {
                 'enforce_https': False,
+                'mode': 'proxy',
             },
         }
         
@@ -107,6 +111,65 @@ class CeryxTestCase(unittest.TestCase):
         response = self.client.get('/api/routes/test-enforce-https-false.dev')
         self.assertDictEqual(
             response.json(), route_enforce_https_false,
+        )
+
+    def test_mode(self):
+        """
+        Assert that creating a route with or without the `mode` setting returns
+        the expected results.
+        """
+        route_without_mode = {
+            'source': 'www.my-website.dev',
+            'target': 'localhost:11235',
+        }
+        route_mode_proxy = {
+            'source': 'www.my-website.dev',
+            'target': 'localhost:11235',
+            'settings': {
+                'enforce_https': False,
+                'mode': 'proxy',
+            },
+        }
+        route_mode_redirect = {
+            'source': 'my-website.dev',
+            'target': 'www.my-website.dev',
+            'settings': {
+                'enforce_https': False,
+                'mode': 'redirect',
+            },
+        }
+        
+        response = self.client.post('/api/routes', json=route_without_mode)
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(
+            response.json(), route_mode_proxy,
+        )
+        
+        response = self.client.get('/api/routes/www.my-website.dev')
+        self.assertDictEqual(
+            response.json(), route_mode_proxy,
+        )
+        
+        response = self.client.post('/api/routes', json=route_mode_proxy)
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(
+            response.json(), route_mode_proxy,
+        )
+        
+        response = self.client.get('/api/routes/www.my-website.dev')
+        self.assertDictEqual(
+            response.json(), route_mode_proxy,
+        )
+        
+        response = self.client.post('/api/routes', json=route_mode_redirect)
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(
+            response.json(), route_mode_redirect,
+        )
+        
+        response = self.client.get('/api/routes/my-website.dev')
+        self.assertDictEqual(
+            response.json(), route_mode_redirect,
         )
 
     def test_delete_route(self):

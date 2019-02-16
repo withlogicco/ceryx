@@ -104,7 +104,7 @@ curl -H "Content-Type: application/json" \
      http://ceryx-api-host/api/routes/publicly.accessible.domain
 ```
 
-### HTTPS redirects
+### Enforce HTTPS
 
 You can enforce redirection from HTTP to HTTPS for any host you would like.
 
@@ -116,6 +116,17 @@ curl -H "Content-Type: application/json" \
 ```
 
 The above functionality works in `PUT` update requests as well.
+
+### Redirect to target, instead of proxying
+
+Instead of proxying the request to the targetm you can prompt the client to redirect the request there itself.
+
+```
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{"source":"sourcelair.com","target":"https://www.sourcelair.com", "settings": {"mode": "redirect"}}' \
+     http://ceryx-api-host/api/routes
+```
 
 ## Ceryx web UI
 
