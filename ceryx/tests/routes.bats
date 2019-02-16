@@ -18,14 +18,26 @@
   [ $ceryx_status_code -eq $upstream_status_code ]
 }
 
-@test "301 response and appropriate 'Location' header when enforce_https=true" {
+@test "301 response when enforce_https=true" {
   curl -s -o /dev/null \
        -X POST \
        -H 'Content-Type: application/json' \
-       -d '{"source": "enforced-https-route", "target": "somewhere", "settings":{"enforce_https":true}}' \
+       -d '{"source": "enforced-https-route", "target": "somewhere", "settings":{"enforce_https": true}}' \
        http://api:5555/api/routes/
 
   status_code=$(curl -s -o /dev/null -I -w "%{http_code}" -H "Host: enforced-https-route" http://ceryx/)
+
+  [ $status_code -eq 301 ]
+}
+
+@test "301 response when mode=redirect" {
+  curl -s -o /dev/null \
+       -X POST \
+       -H 'Content-Type: application/json' \
+       -d '{"source": "redirected-route", "target": "redirection-target", "settings":{"mode": "redirect"}}' \
+       http://api:5555/api/routes/
+
+  status_code=$(curl -s -o /dev/null -I -w "%{http_code}" -H "Host: redirected-route" http://ceryx/)
 
   [ $status_code -eq 301 ]
 }
