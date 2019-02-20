@@ -33,7 +33,7 @@ server {
     }
 
     location / {
-        set $container_url "fallback";
+        set $target "fallback";
 
         # Lua files
         access_by_lua_file lualib/router.lua;
@@ -52,7 +52,7 @@ server {
         proxy_redirect ~^(https://[^:]+):\d+(/.+)$ $2;
         proxy_redirect / /;
 
-        proxy_pass http://$container_url$request_uri;
+        proxy_pass $target;
     }
 
     error_page 503 /503.html;
