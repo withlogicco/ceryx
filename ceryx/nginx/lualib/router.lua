@@ -1,31 +1,42 @@
 local redis = require "ceryx.redis"
+local routes = require "ceryx.routes"
 local utils = require "ceryx.utils"
 
 local redisClient = redis:client()
-local prefix = redis.prefix()
 
 local host = ngx.var.host
 local cache = ngx.shared.ceryx
 
 local is_not_https = (ngx.var.scheme ~= "https")
-local settings_key = prefix .. ":settings:" .. host
+local settings_key = redis.prefix .. ":settings:" .. host
 
-
-function route(source, target, mode)
-    ngx.log(ngx.DEBUG, "Received " .. mode ..  " routing request from " .. source .. " to " .. target)
-
+function formatTarget(target)
     target = utils.ensure_protocol(target)
     target = utils.ensure_no_trailing_slash(target)
 
-    local full_target = target .. ngx.var.request_uri
+    return target .. ngx.var.request_uri
+end
+
+function redirect(source, target)
+    ngx.log(ngx.INFO, "Redirecting request for " .. source .. " to " .. target .. ".")
+    return ngx.redirect(target, ngx.HTTP_MOVED_PERMANENTLY)
+end
+
+function proxy(source, target)
+    ngx.var.target = target
+    ngx.log(ngx.INFO, "Proxying request for " .. source .. " to " .. target .. ".")
+end
+
+function routeRequest(source, target, mode)
+    ngx.log(ngx.DEBUG, "Received " .. mode .. " routing request from " .. source .. " to " .. target)
+
+    target = formatTarget(target)
 
     if mode == "redirect" then
-        ngx.log(ngx.INFO, "Redirecting request for " .. source .. " to " .. full_target .. ".")
-        return ngx.redirect(full_target, ngx.HTTP_MOVED_PERMANENTLY)
+        return redirect(source, target)
     end
 
-    ngx.var.target = full_target
-    ngx.log(ngx.INFO, "Proxying request for " .. source .. " to " .. full_target .. ".")
+    return proxy(source, target)
 end
 
 if is_not_https then
@@ -45,35 +56,13 @@ end
 -- Get routing mode
 local mode, mode_flags = redisClient:hget(settings_key, "mode")
 
--- Check if key exists in local cache
-res, flags = cache:get(host)
-if res then
-    ngx.log(ngx.DEBUG, "Cache hit for " .. host .. ".")
-    route(host, res, mode)
-else
-    ngx.log(ngx.DEBUG, "Cache miss for " .. host .. ".")
+ngx.log(ngx.INFO, "HOST " .. host)
+local route = routes.getRouteForSource(host)
 
-    -- Construct Redis key
-    local key = prefix .. ":routes:" .. host
-    
-    -- Try to get target for host
-    res, err = redisClient:get(key)
-    if not res or res == ngx.null then
-        ngx.log(ngx.INFO, "Could not find target for " .. host .. ".")
-
-        -- Construct Redis key for $wildcard
-        key = prefix .. ":routes:$wildcard"
-        res, err = redisClient:get(key)
-        if not res or res == ngx.null then
-            ngx.log(ngx.INFO, "No $wildcard target configured for fallback. Exiting with Bad Gateway.")
-            return ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
-        else
-            ngx.log(ngx.DEBUG, "Falling back to " .. res .. ".")
-        end
-    end
+if route == nil then
+    ngx.log(ngx.INFO, "No $wildcard target configured for fallback. Exiting with Bad Gateway.")
+    return ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
 end
 
 -- Save found key to local cache for 5 seconds
-route(host, res, mode)
-cache:set(host, res, 5)
-ngx.log(ngx.DEBUG, "Saving route from " .. host .. " to " .. res .. " in local cache for 5 seconds.")
+routeRequest(host, route.target, mode)
