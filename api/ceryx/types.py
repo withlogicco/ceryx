@@ -3,16 +3,10 @@ from apistar import types, validators
 
 SETTINGS_VALIDATOR = validators.Object(
     properties={
-        'enforce_https': validators.Boolean(default=False),
-        'mode': validators.String(
-            default='proxy',
-            enum=['proxy', 'redirect'],
-        ),
+        "enforce_https": validators.Boolean(default=False),
+        "mode": validators.String(default="proxy", enum=["proxy", "redirect"]),
     },
-    default={
-        'enforce_https': False,
-        'mode': 'proxy',
-    },
+    default={"enforce_https": False, "mode": "proxy"},
 )
 
 

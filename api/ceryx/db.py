@@ -8,11 +8,11 @@ import redis
 from ceryx import settings
 
 
-STARTS_WITH_PROTOCOL = r'^https?://'
+STARTS_WITH_PROTOCOL = r"^https?://"
 
 
 def _str(subject):
-    return subject.decode('utf-8') if type(subject) == bytes else str(bytes)
+    return subject.decode("utf-8") if type(subject) == bytes else str(bytes)
 
 
 def encode_settings(settings):
@@ -20,8 +20,8 @@ def encode_settings(settings):
     Encode and sanitize settings in order to be written to Redis.
     """
     encoded_settings = {
-        'enforce_https': str(int(settings.get('enforce_https', False))),
-        'mode': settings.get('mode', 'proxy'),
+        "enforce_https": str(int(settings.get("enforce_https", False))),
+        "mode": settings.get("mode", "proxy"),
     }
 
     return encoded_settings
@@ -34,12 +34,10 @@ def decode_settings(settings):
 
     # If any of the keys or values of the provided settings are bytes, then
     # convert them to strings.
-    _settings = {
-        _str(k): _str(v) for k, v in settings.items()
-    }
+    _settings = {_str(k): _str(v) for k, v in settings.items()}
     decoded = {
-        'enforce_https': bool(int(_settings.get('enforce_https', '0'))),
-        'mode': _settings.get('mode', 'proxy'),
+        "enforce_https": bool(int(_settings.get("enforce_https", "0"))),
+        "mode": _settings.get("mode", "proxy"),
     }
 
     return decoded
@@ -49,6 +47,7 @@ class RedisRouter(object):
     """
     Router using a redis backend, in order to route incoming requests.
     """
+
     class LookupNotFound(Exception):
         """
         Exception raised when a lookup for a specific host was not found.
@@ -57,7 +56,7 @@ class RedisRouter(object):
         def __init__(self, message, errors=None):
             Exception.__init__(self, message)
             if errors is None:
-                self.errors = {'message': message}
+                self.errors = {"message": message}
             else:
                 self.errors = errors
 
@@ -67,12 +66,16 @@ class RedisRouter(object):
         Returns a RedisRouter, using the default configuration from Ceryx
         settings.
         """
-        return RedisRouter(settings.REDIS_HOST, settings.REDIS_PORT,
-                           settings.REDIS_PASSWORD, 0, settings.REDIS_PREFIX)
+        return RedisRouter(
+            settings.REDIS_HOST,
+            settings.REDIS_PORT,
+            settings.REDIS_PASSWORD,
+            0,
+            settings.REDIS_PREFIX,
+        )
 
     def __init__(self, host, port, password, db, prefix):
-        self.client = redis.StrictRedis(
-            host=host, port=port, password=password, db=db)
+        self.client = redis.StrictRedis(host=host, port=port, password=password, db=db)
         self.prefix = prefix
 
     def _prefixed_route_key(self, source):
@@ -80,9 +83,9 @@ class RedisRouter(object):
         Returns the prefixed key, if prefix has been defined, for the given
         route.
         """
-        prefixed_key = 'routes:%s'
+        prefixed_key = "routes:%s"
         if self.prefix is not None:
-            prefixed_key = self.prefix + ':routes:%s'
+            prefixed_key = self.prefix + ":routes:%s"
         prefixed_key = prefixed_key % source
         return prefixed_key
 
@@ -91,16 +94,16 @@ class RedisRouter(object):
         Returns the prefixed key, if prefix has been defined, for the given
         source's setting.
         """
-        prefixed_key = 'settings:%s'
+        prefixed_key = "settings:%s"
         if self.prefix is not None:
-            prefixed_key = self.prefix + ':settings:%s'
+            prefixed_key = self.prefix + ":settings:%s"
         prefixed_key = prefixed_key % source
         return prefixed_key
-    
+
     def _delete_settings_for_source(self, source):
         settings_key = self._prefixed_settings_key(source)
         self.client.delete(settings_key)
-    
+
     def _set_settings_for_source(self, source, settings):
         settings_key = self._prefixed_settings_key(source)
 
@@ -120,9 +123,7 @@ class RedisRouter(object):
         target_host = self.client.get(lookup_host)
 
         if target_host is None and not silent:
-            raise RedisRouter.LookupNotFound(
-                'Given host does not match with any route'
-            )
+            raise RedisRouter.LookupNotFound("Given host does not match with any route")
         else:
             return _str(target_host)
 
@@ -141,13 +142,13 @@ class RedisRouter(object):
         all hosts are returned.
         """
         if not pattern:
-            pattern = '*'
+            pattern = "*"
         lookup_pattern = self._prefixed_route_key(pattern)
         keys = self.client.keys(lookup_pattern)
-        filtered_keys = [key[len(lookup_pattern) - len(pattern):] for key in keys]
+        filtered_keys = [key[len(lookup_pattern) - len(pattern) :] for key in keys]
         return [_str(key) for key in filtered_keys]
 
-    def lookup_routes(self, pattern='*'):
+    def lookup_routes(self, pattern="*"):
         """
         Fetches routes with host that matches the given pattern. If no pattern
         is given, all routes are returned.
@@ -157,9 +158,9 @@ class RedisRouter(object):
         for host in hosts:
             routes.append(
                 {
-                    'source': host,
-                    'target': self.lookup(host, silent=True),
-                    'settings': self.lookup_settings(host),
+                    "source": host,
+                    "target": self.lookup(host, silent=True),
+                    "settings": self.lookup_settings(host),
                 }
             )
         return routes
@@ -169,17 +170,12 @@ class RedisRouter(object):
         Inserts a new source/target host entry in to the database.
         """
         target = (
-            target if re.match(STARTS_WITH_PROTOCOL, target)
-            else f'http://{target}'
+            target if re.match(STARTS_WITH_PROTOCOL, target) else f"http://{target}"
         )
         route_key = self._prefixed_route_key(source)
         self.client.set(route_key, target)
         self._set_settings_for_source(source, settings)
-        route = {
-            'source': source,
-            'target': target,
-            'settings': settings,
-        }
+        route = {"source": source, "target": target, "settings": settings}
         return route
 
     def delete(self, source):

@@ -10,6 +10,7 @@ requests = ">=2.21.0"
 
 [dev-packages]
 nose = "*"
+black = "==18.9b0"
 
 [requires]
 python_version = "3.6"
