@@ -27,7 +27,7 @@ http {
     error_log /dev/stderr {{ default .Env.CERYX_LOG_LEVEL "info" }};
 
     # Lua settings
-    lua_package_path "$prefix/lualib/?.lua;;";
+    lua_package_path "${prefix}lualib/?.lua;;";
 
     lua_shared_dict ceryx 1m;
     lua_shared_dict auto_ssl 1m;

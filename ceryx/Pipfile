@@ -4,13 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-apistar = "==0.4.3"
-redis = "*"
-requests = ">=2.21.0"
 
 [dev-packages]
-nose = "*"
+pytest = "*"
+requests = "*"
 black = "==18.9b0"
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true
