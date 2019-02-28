@@ -3,12 +3,12 @@ version: '3.5'
 services:
   test:
     build:
-      context: .
+      context: ./ceryx
       dockerfile: Dockerfile.test
     environment:
       CERYX_API_URL: "http://api:${CERYX_API_PORT:-5555}"
     volumes:
-      - .:/usr/src/app
+      - ./ceryx:/usr/src/app
     depends_on:
       - ceryx
       - api

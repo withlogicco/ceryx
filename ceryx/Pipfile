@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+
+[dev-packages]
+pytest = "*"
+requests = "*"
+black = "==18.9b0"
+
+[requires]
+python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true
