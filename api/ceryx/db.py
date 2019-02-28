@@ -1,9 +1,14 @@
 """
 Simple Redis client, implemented the data logic of Ceryx.
 """
+import re
+
 import redis
 
 from ceryx import settings
+
+
+STARTS_WITH_PROTOCOL = r'^https?://'
 
 
 def _str(subject):
@@ -163,9 +168,19 @@ class RedisRouter(object):
         """
         Inserts a new source/target host entry in to the database.
         """
+        target = (
+            target if re.match(STARTS_WITH_PROTOCOL, target)
+            else f'http://{target}'
+        )
         route_key = self._prefixed_route_key(source)
         self.client.set(route_key, target)
         self._set_settings_for_source(source, settings)
+        route = {
+            'source': source,
+            'target': target,
+            'settings': settings,
+        }
+        return route
 
     def delete(self, source):
         """

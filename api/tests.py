@@ -20,17 +20,17 @@ class CeryxTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(type(response.json()), list)
 
-    def test_create_route(self):
+    def test_create_route_without_protocol(self):
         """
         Assert that creating a route, will result in the appropriate route.
         """
-        route_data = {
+        request_body = {
             'source': 'test.dev',
             'target': 'localhost:11235',
         }
-        expected_response = {
+        response_body = {
             'source': 'test.dev',
-            'target': 'localhost:11235',
+            'target': 'http://localhost:11235',
             'settings': {
                 'enforce_https': False,
                 'mode': 'proxy',
@@ -38,26 +38,78 @@ class CeryxTestCase(unittest.TestCase):
         }
         
         # Create a route and assert valid data in response
-        response = self.client.post('/api/routes', json=route_data)
+        response = self.client.post('/api/routes', json=request_body)
         self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), expected_response)
+        self.assertDictEqual(response.json(), response_body)
         
         # Also get the route and assert valid data
         response = self.client.get('/api/routes/test.dev')
-        self.assertDictEqual(response.json(), expected_response)
+        self.assertDictEqual(response.json(), response_body)
+
+    def test_create_route_with_http_protocol(self):
+        """
+        Assert that creating a route, will result in the appropriate route.
+        """
+        request_body = {
+            'source': 'test.dev',
+            'target': 'http://localhost:11235',
+        }
+        response_body = {
+            'source': 'test.dev',
+            'target': 'http://localhost:11235',
+            'settings': {
+                'enforce_https': False,
+                'mode': 'proxy',
+            }
+        }
+        
+        # Create a route and assert valid data in response
+        response = self.client.post('/api/routes', json=request_body)
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(response.json(), response_body)
+        
+        # Also get the route and assert valid data
+        response = self.client.get('/api/routes/test.dev')
+        self.assertDictEqual(response.json(), response_body)
+
+    def test_create_route_with_https_protocol(self):
+        """
+        Assert that creating a route, will result in the appropriate route.
+        """
+        request_body = {
+            'source': 'test.dev',
+            'target': 'https://localhost:11235',
+        }
+        response_body = {
+            'source': 'test.dev',
+            'target': 'https://localhost:11235',
+            'settings': {
+                'enforce_https': False,
+                'mode': 'proxy',
+            }
+        }
+        
+        # Create a route and assert valid data in response
+        response = self.client.post('/api/routes', json=request_body)
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(response.json(), response_body)
+        
+        # Also get the route and assert valid data
+        response = self.client.get('/api/routes/test.dev')
+        self.assertDictEqual(response.json(), response_body)
 
     def test_enforce_https(self):
         """
         Assert that creating a route with the `enforce_https` settings returns
         the expected results
         """
-        route_without_enforce_https = {
+        route_without_enforce_https_request_body = {
             'source': 'test-no-enforce-https.dev',
-            'target': 'localhost:11235',
+            'target': 'http://localhost:11235',
         }
         route_enforce_https_true = {
             'source': 'test-enforce-https-true.dev',
-            'target': 'localhost:11235',
+            'target': 'http://localhost:11235',
             'settings': {
                 'enforce_https': True,
                 'mode': 'proxy',
@@ -65,30 +117,30 @@ class CeryxTestCase(unittest.TestCase):
         }
         route_enforce_https_false = {
             'source': 'test-enforce-https-false.dev',
-            'target': 'localhost:11235',
+            'target': 'http://localhost:11235',
             'settings': {
                 'enforce_https': False,
                 'mode': 'proxy',
             },
         }
-        expected_response_without_enforce_https = {
+        route_without_enforce_https_response_body = {
             'source': 'test-no-enforce-https.dev',
-            'target': 'localhost:11235',
+            'target': 'http://localhost:11235',
             'settings': {
                 'enforce_https': False,
                 'mode': 'proxy',
             },
         }
         
-        response = self.client.post('/api/routes', json=route_without_enforce_https)
+        response = self.client.post('/api/routes', json=route_without_enforce_https_request_body)
         self.assertEqual(response.status_code, 201)
         self.assertDictEqual(
-            response.json(), expected_response_without_enforce_https,
+            response.json(), route_without_enforce_https_response_body,
         )
         
         response = self.client.get('/api/routes/test-no-enforce-https.dev')
         self.assertDictEqual(
-            response.json(), expected_response_without_enforce_https,
+            response.json(), route_without_enforce_https_response_body,
         )
         
         response = self.client.post('/api/routes', json=route_enforce_https_true)
@@ -120,11 +172,11 @@ class CeryxTestCase(unittest.TestCase):
         """
         route_without_mode = {
             'source': 'www.my-website.dev',
-            'target': 'localhost:11235',
+            'target': 'http://localhost:11235',
         }
         route_mode_proxy = {
             'source': 'www.my-website.dev',
-            'target': 'localhost:11235',
+            'target': 'http://localhost:11235',
             'settings': {
                 'enforce_https': False,
                 'mode': 'proxy',
@@ -132,7 +184,7 @@ class CeryxTestCase(unittest.TestCase):
         }
         route_mode_redirect = {
             'source': 'my-website.dev',
-            'target': 'www.my-website.dev',
+            'target': 'http://www.my-website.dev',
             'settings': {
                 'enforce_https': False,
                 'mode': 'redirect',
@@ -178,7 +230,7 @@ class CeryxTestCase(unittest.TestCase):
         """
         route_data = {
             'source': 'test.dev',
-            'target': 'localhost:11235'
+            'target': 'http://localhost:11235'
         }
         
         # Create a route

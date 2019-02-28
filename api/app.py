@@ -15,13 +15,12 @@ def list_routes() -> typing.List[types.Route]:
 
 
 def create_route(route: types.Route) -> types.Route:
-    ROUTER.insert(**route)
-    return http.JSONResponse(route, status_code=201)
+    created_route = ROUTER.insert(**route)
+    return http.JSONResponse(created_route, status_code=201)
 
 
 def update_route(source: str, route: types.RouteWithoutSource) -> types.Route:
-    ROUTER.insert(source, **route)
-    updated_route = dict(source=source, **route)
+    updated_route = ROUTER.insert(source, **route)
     return types.Route(updated_route)
 
 
