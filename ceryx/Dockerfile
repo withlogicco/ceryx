@@ -4,10 +4,11 @@ ARG user=www-data
 ARG group=www-data
 
 RUN mkdir -p /etc/letsencrypt &&\
+    mkdir -p /etc/ceryx/ssl &&\
     openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 \
         -subj '/CN=sni-support-required-for-valid-ssl' \
-        -keyout /etc/ssl/resty-auto-ssl-fallback.key \
-        -out /etc/ssl/resty-auto-ssl-fallback.crt
+        -keyout /etc/ceryx/ssl/default.key \
+        -out /etc/ceryx/ssl/default.crt
 
 # Install dockerize binary, for templated configs
 # https://github.com/jwilder/dockerize
