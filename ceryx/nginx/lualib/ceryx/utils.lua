@@ -42,4 +42,12 @@ function exports.getenv(variable, default)
     return default
 end
 
+function exports.read_file(path)
+    local file = assert(io.open(path, "r"))
+    local file_data = file:read("*all")
+    file:close()
+
+    return file_data
+end
+
 return exports

@@ -15,7 +15,7 @@ server {
     default_type text/html;
 
     ssl_certificate {{ default .Env.CERYX_SSL_DEFAULT_CERTIFICATE "/etc/ceryx/ssl/default.crt" }};
-    ssl_certificate_key {{ default .Env.CERYX_SSL_DEFAULT_CERTIFICATE_KEY "/etc/ceryx/ssl/default.key" }};
+    ssl_certificate_key {{ default .Env.CERYX_SSL_DEFAULT_KEY "/etc/ceryx/ssl/default.key" }};
     ssl_certificate_by_lua_file lualib/certificate.lua;
 
     location /.well-known/acme-challenge {

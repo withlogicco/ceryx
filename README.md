@@ -31,7 +31,7 @@ Ceryx is configured with the following environment variables:
   - `CERYX_REDIS_PORT`: The where Redis should be reached (default: `6379`)
   - `CERYX_REDIS_PREFIX`: The prefix to use in Ceryx-related Redis keys (default: `ceryx`)
   - `CERYX_SSL_DEFAULT_CERTIFICATE`: The path to the fallback SSL certificate (default: `/etc/ceryx/ssl/default.crt` — randomly generated at build time)
-  - `CERYX_SSL_DEFAULT_CERTIFICATE_KEY`: The path to the fallback SSL certificate key (default: `/etc/ceryx/ssl/default.key` — randomly generated at build time)
+  - `CERYX_SSL_DEFAULT_KEY`: The path to the fallback SSL certificate key (default: `/etc/ceryx/ssl/default.key` — randomly generated at build time)
 
 ## Adjusting log level
 
