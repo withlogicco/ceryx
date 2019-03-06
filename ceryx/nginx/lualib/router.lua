@@ -53,8 +53,9 @@ if is_not_https then
     end
 end
 
--- Get routing mode
+-- Get routing mode (default to "proxy")
 local mode, mode_flags = redisClient:hget(settings_key, "mode")
+mode = mode or "proxy"
 
 ngx.log(ngx.INFO, "HOST " .. host)
 local route = routes.getRouteForSource(host)
