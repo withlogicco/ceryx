@@ -6,13 +6,15 @@ function getRouteKeyForSource(source)
     return redis.prefix .. ":routes:" .. source
 end
 
+function getSettingsKeyForSource(source)
+    return redis.prefix .. ":settings:" .. source
+end
+
 function targetIsInValid(target)
     return not target or target == ngx.null
 end
 
-function getTargetForSource(source)
-    local redisClient = redis:client()
-
+function getTargetForSource(source, redisClient)
     -- Construct Redis key and then
     -- try to get target for host
     local key = getRouteKeyForSource(source)
@@ -35,10 +37,23 @@ function getTargetForSource(source)
     return target
 end
 
+function getModeForSource(source, redisClient)
+    ngx.log(ngx.DEBUG, "Get routing mode for " .. source .. ".")
+    local settings_key = getSettingsKeyForSource(source)
+    local mode, _ = redisClient:hget(settings_key, "mode")
+
+    if mode == ngx.null or not mode then
+        mode = "proxy"
+    end
+
+    return mode
+end
+
 function getRouteForSource(source)
     local _
     local route = {}
     local cache = ngx.shared.ceryx
+    local redisClient = redis:client()
 
     ngx.log(ngx.DEBUG, "Looking for a route for " .. source)
     -- Check if key exists in local cache
@@ -49,7 +64,7 @@ function getRouteForSource(source)
         route.target = cached_value
     else
         ngx.log(ngx.DEBUG, "Cache miss for " .. source .. ".")
-        route.target = getTargetForSource(source)
+        route.target = getTargetForSource(source, redisClient)
 
         if targetIsInValid(route.target) then
             return nil
@@ -58,9 +73,12 @@ function getRouteForSource(source)
         ngx.log(ngx.DEBUG, "Caching from " .. source .. " to " .. route.target .. " for 5 seconds.")
     end
 
+    route.mode = getModeForSource(source, redisClient)
+
     return route
 end
 
+exports.getSettingsKeyForSource = getSettingsKeyForSource
 exports.getRouteForSource = getRouteForSource
 exports.getTargetForSource = getTargetForSource
 
