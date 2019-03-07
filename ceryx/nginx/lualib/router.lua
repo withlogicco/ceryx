@@ -8,7 +8,6 @@ local host = ngx.var.host
 local cache = ngx.shared.ceryx
 
 local is_not_https = (ngx.var.scheme ~= "https")
-local settings_key = redis.prefix .. ":settings:" .. host
 
 function formatTarget(target)
     target = utils.ensure_protocol(target)
@@ -40,6 +39,7 @@ function routeRequest(source, target, mode)
 end
 
 if is_not_https then
+    local settings_key = routes.getSettingsKeyForSource(host)
     local enforce_https, flags = cache:get(host .. ":enforce_https")
 
     if enforce_https == nil then
@@ -53,10 +53,6 @@ if is_not_https then
     end
 end
 
--- Get routing mode (default to "proxy")
-local mode, mode_flags = redisClient:hget(settings_key, "mode")
-mode = mode or "proxy"
-
 ngx.log(ngx.INFO, "HOST " .. host)
 local route = routes.getRouteForSource(host)
 
@@ -66,4 +62,4 @@ if route == nil then
 end
 
 -- Save found key to local cache for 5 seconds
-routeRequest(host, route.target, mode)
+routeRequest(host, route.target, route.mode)
