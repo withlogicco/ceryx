@@ -9,8 +9,9 @@ local routes = require "ceryx.routes"
 auto_ssl:set(
     "allow_domain",
     function(domain)
+        local redisClient = redis:client()
         local host = domain
-        local target = routes.getTargetForSource(host)
+        local target = routes.getTargetForSource(host, redisClient)
 
         if target == nil then
             return target
