@@ -6,7 +6,7 @@ import uuid
 import redis
 import requests
 
-import client
+from client import CeryxTestClient
 
 ALL_CAN_READ = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
 
@@ -14,7 +14,7 @@ CERTIFICATE_ROOT = "/usr/local/share/certificates"
 CERYX_HOST = "ceryx"
 
 redis_client = redis.Redis(host='redis')
-testing_client = client.Client()
+test_client = CeryxTestClient()
 
 
 def test_custom_certificate():
@@ -52,4 +52,4 @@ def test_custom_certificate():
     redis_client.hset(settings_redis_key, "certificate_path", certificate_path)
     redis_client.hset(settings_redis_key, "key_path", key_path)
 
-    testing_client.get(f"https://{hostname}/", verify=certificate_path)
+    test_client.get(f"https://{hostname}/", verify=certificate_path)

@@ -56,6 +56,7 @@ class CeryxTestsHTTPConnectionPool(HTTPConnectionPool):
     ConnectionCls = CeryxTestsHTTPConnection
 
     def __init__(self, host, *args, **kwargs):
+        print(f"IMPOSTOR HOST: {host}")
         self._impostor_host = host
         super().__init__(host, *args, **kwargs)
     
@@ -96,7 +97,7 @@ class CeryxTestsHTTPAdapter(HTTPAdapter):
         )
 
 
-class Client(Session):
+class CeryxTestClient(Session):
     def __init__(self):
         super().__init__()
         self.mount("http://", CeryxTestsHTTPAdapter())

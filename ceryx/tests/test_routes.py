@@ -2,10 +2,15 @@ import os
 
 import requests
 
+from client import CeryxTestClient
+
+
 CERYX_API_URL = os.getenv("CERYX_API_URL", "http://api:5555")
 CERYX_API_ROUTES_ROOT = os.path.join(CERYX_API_URL, "api/routes")
 
 CERYX_HOST = "http://ceryx"
+
+test_client = CeryxTestClient()
 
 
 def test_no_route():
@@ -13,9 +18,7 @@ def test_no_route():
     Ceryx should send a `503` response when receiving a request with a `Host`
     header that has not been registered for routing.
     """
-    response = requests.get(
-        CERYX_HOST, headers={"Host": "i-do-not-exist.ceryx.test"}
-    )
+    response = test_client.get("http://i-do-not-exist.ceryx.test/")
     assert response.status_code == 503
 
 
@@ -34,12 +37,8 @@ def test_proxy():
         json={"source": ceryx_route_source, "target": ceryx_route_target},
     )
 
-    upstream_response = requests.get(
-        ceryx_route_target, headers={"Host": api_upstream_host}
-    )
-    ceryx_response = requests.get(
-        f"{CERYX_HOST}", headers={"Host": ceryx_route_source}
-    )
+    upstream_response = test_client.get(ceryx_route_target)
+    ceryx_response = test_client.get(f"http://{ceryx_route_source}/")
 
     assert upstream_response.status_code == ceryx_response.status_code
     assert upstream_response.content == ceryx_response.content
@@ -64,12 +63,10 @@ def test_redirect():
         },
     )
 
-    original_url = f"{CERYX_HOST}/some/path/?some=args&more=args"
+    url = f"http://{ceryx_route_source}/some/path/?some=args&more=args"
     target_url = f"{ceryx_route_target}/some/path/?some=args&more=args"
 
-    ceryx_response = requests.get(
-        original_url, headers={"Host": ceryx_route_source}, allow_redirects=False,
-    )
+    ceryx_response = test_client.get(url, allow_redirects=False)
     
     assert ceryx_response.status_code == 301
     assert ceryx_response.headers["Location"] == target_url
@@ -94,12 +91,10 @@ def test_enforce_https():
         },
     )
 
-
-    original_url = f"{CERYX_HOST}/some/path/?some=args&more=args"
-    secure_url = f"https://{ceryx_route_source}/some/path/?some=args&more=args"
-    ceryx_response = requests.get(
-        original_url, headers={"Host": ceryx_route_source}, allow_redirects=False,
-    )
+    base_url = f"{ceryx_route_source}/some/path/?some=args&more=args"
+    http_url = f"http://{base_url}"
+    https_url = f"https://{base_url}"
+    ceryx_response = test_client.get(http_url, allow_redirects=False)
 
     assert ceryx_response.status_code == 301
-    assert ceryx_response.headers["Location"] == secure_url
+    assert ceryx_response.headers["Location"] == https_url
