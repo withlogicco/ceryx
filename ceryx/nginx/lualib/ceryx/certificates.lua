@@ -5,7 +5,7 @@ local utils = require "ceryx.utils"
 local exports = {}
 
 function getRedisKeyForHost(host)
-    return redis.prefix .. ":certificates:" .. host
+    return redis.prefix .. ":settings:" .. host
 end
 
 function getCertificatesForHost(host)
