@@ -8,6 +8,7 @@ import requests
 
 from client import CeryxTestClient
 
+
 ALL_CAN_READ = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
 
 CERTIFICATE_ROOT = "/usr/local/share/certificates"
