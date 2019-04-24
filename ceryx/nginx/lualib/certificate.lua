@@ -21,7 +21,7 @@ if certificates ~= nil then
         ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
     end
 
-    local key_der, key_der_err = ssl.priv_key_pem_to_der(key_data)
+    local key_der, key_der_err = ssl.priv_key_pem_to_der(host_certificates["key"])
     if not key_der or key_der_err then
         ngx.log(ngx.ERROR, "Could not convert PEM key to DER. Error: " .. (key_der_err or ""))
         ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
