@@ -27,10 +27,7 @@ function getCertificatesForHost(host)
 
     ngx.log(ngx.DEBUG, "Found SSL certificates for " .. host .. " in Redis.")
 
-    ngx.log(ngx.DEBUG, "Reading certificate file for " .. host .. ": " .. certificate_path)
     local certificate_data = utils.read_file(certificate_path)
-
-    ngx.log(ngx.DEBUG, "Reading key file for " .. host .. ": " .. key_path)
     local key_data = utils.read_file(key_path)
 
     local data = {}

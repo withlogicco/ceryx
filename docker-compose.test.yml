@@ -1,6 +1,10 @@
-version: '3.5'
+version: '3.7'
 
 services:
+  ceryx:
+    volumes:
+      - test_certificates:/usr/local/share/certificates
+
   test:
     build:
       context: ./ceryx
@@ -9,6 +13,10 @@ services:
       CERYX_API_URL: "http://api:${CERYX_API_PORT:-5555}"
     volumes:
       - ./ceryx:/usr/src/app
+      - test_certificates:/usr/local/share/certificates
     depends_on:
       - ceryx
       - api
+
+volumes:
+  test_certificates:

@@ -1,0 +1,8 @@
+#! /bin/bash
+
+set -ex
+
+export DOCKER_COMPOSE_VERSION=1.23.2
+export COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml:docker-compose.test.yml
+
+docker-compose run test
