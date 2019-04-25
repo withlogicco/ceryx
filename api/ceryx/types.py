@@ -5,8 +5,15 @@ SETTINGS_VALIDATOR = validators.Object(
     properties={
         "enforce_https": validators.Boolean(default=False),
         "mode": validators.String(default="proxy", enum=["proxy", "redirect"]),
+        "certificate_path": validators.String(),
+        "key_path": validators.String(),
     },
-    default={"enforce_https": False, "mode": "proxy"},
+    default={
+        "enforce_https": False,
+        "mode": "proxy",
+        "certificate_path": None,
+        "key_path": None,
+    },
 )
 
 

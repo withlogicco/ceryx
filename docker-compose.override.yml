@@ -18,6 +18,7 @@ services:
     environment:
       CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-api.ceryx.dev}
       CERYX_DEBUG: ${CERYX_DEBUG:-true}
+    command: uvicorn --reload --host 0.0.0.0 --port 5555 api:api
 
 networks:
   default:

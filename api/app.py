@@ -2,6 +2,7 @@ import typing
 
 from apistar import App, http, Route
 
+from ceryx import schemas
 from ceryx import types
 from ceryx.db import RedisRouter
 

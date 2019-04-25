@@ -11,4 +11,5 @@ RUN pipenv install --system --dev --deploy
 COPY . /opt/ceryx
 WORKDIR /opt/ceryx
 
-CMD python app.py
+ENV PORT 5555
+CMD python api.py
