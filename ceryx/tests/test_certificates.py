@@ -11,12 +11,9 @@ class TestCertificates(BaseTest):
         certificate_path , key_path = create_certificates_for_host(self.host)
 
         api_base_url = "http://api:5555/"
+        self.redis.set(self.redis_target_key, api_base_url)
 
-        route_redis_key = f"ceryx:routes:{self.host}"
-        self.redis.set(route_redis_key, api_base_url)
-
-        settings_redis_key = f"ceryx:settings:{self.host}"
-        self.redis.hset(settings_redis_key, "certificate_path", certificate_path)
-        self.redis.hset(settings_redis_key, "key_path", key_path)
+        self.redis.hset(self.redis_settings_key, "certificate_path", certificate_path)
+        self.redis.hset(self.redis_settings_key, "key_path", key_path)
 
         self.client.get(f"https://{self.host}/", verify=certificate_path)
