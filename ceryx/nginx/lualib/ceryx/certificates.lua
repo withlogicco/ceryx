@@ -15,12 +15,12 @@ function getCertificatesForHost(host)
     local certificate_path, certificate_err = redisClient:hget(certificates_redis_key, "certificate_path")
     local key_path, key_err = redisClient:hget(certificates_redis_key, "key_path")
 
-    if certificate_path == nil then
+    if certificate_path == ngx.null then
         ngx.log(ngx.ERR, "Could not retrieve SSL certificate path for " .. host .. " from Redis: " .. (certificate_err or "N/A"))
         return nil
     end
 
-    if key_path == nil then
+    if key_path == ngx.null then
         ngx.log(ngx.ERR, "Could not retrieve SSL key path for " .. host .. " from Redis: " .. (key_err or "N/A"))
         return nil
     end

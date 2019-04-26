@@ -13,7 +13,7 @@ end
 
 local host_certificates = certificates.getCertificatesForHost(host)
 
-if certificates ~= nil then
+if host_certificates ~= nil then
     -- Convert data from PEM to DER
     local certificate_der, certificate_der_err = ssl.cert_pem_to_der(host_certificates["certificate"])
     if not certificate_der or certificate_der_err then

@@ -4,7 +4,7 @@ python:
   - 3.6
 
 env:
-  - DOCKER_COMPOSE_VERSION=1.23.2 COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml:docker-compose.test.yml
+  - DOCKER_COMPOSE_VERSION=1.23.2 COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml:docker-compose.test.yml CERYX_DISABLE_LETS_ENCRYPT=true
 
 install:
   - pip install --upgrade --ignore-installed docker-compose==${DOCKER_COMPOSE_VERSION}

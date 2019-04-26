@@ -2,6 +2,7 @@ user www-data www-data;
 worker_processes 1;
 pid /run/nginx.pid;
 
+env CERYX_DISABLE_LETS_ENCRYPT;
 env CERYX_REDIS_PREFIX;
 env CERYX_REDIS_HOST;
 env CERYX_REDIS_PASSWORD;

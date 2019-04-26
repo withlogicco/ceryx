@@ -17,3 +17,14 @@ class TestCertificates(BaseTest):
         self.redis.hset(self.redis_settings_key, "key_path", key_path)
 
         self.client.get(f"https://{self.host}/", verify=certificate_path)
+
+    def test_fallback_certificate(self):
+        """
+        Ensure that Ceryx uses the fallback certificate if a route gets accessed
+        via HTTPS with no configured certificate or automatic Let's Encrypt
+        certificates enabled.
+        """
+        try:
+            response = self.client.get(f"https://ghost.ceryx.test/", verify="/etc/ceryx/ssl/default.crt")
+        except Exception as e:
+            assert "sni-support-required-for-valid-ssl" in str(e)
