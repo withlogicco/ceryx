@@ -10,14 +10,12 @@ install:
   - pip install --upgrade --ignore-installed docker-compose==${DOCKER_COMPOSE_VERSION}
   - docker-compose build
 
-  - pip install pipenv==2018.11.26
-  - bash -c "cd api && pipenv install --dev --deploy --system"
-
 services:
   - redis-server
   - docker
 
 script:
+  - docker-compose up -d
   - docker-compose run api ./bin/test
   - docker-compose run test
 
