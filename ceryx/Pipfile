@@ -9,6 +9,8 @@ name = "pypi"
 pytest = "*"
 requests = "*"
 black = "==18.9b0"
+redis = "*"
+urllib3 = "*"
 
 [requires]
 python_version = "3.6"

@@ -4,13 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-apistar = "==0.4.3"
 redis = "*"
 requests = ">=2.21.0"
+typesystem = "*"
+responder = "*"
 
 [dev-packages]
 nose = "*"
 black = "==18.9b0"
+pytest = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.6"

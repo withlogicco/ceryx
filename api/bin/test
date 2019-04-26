@@ -2,8 +2,7 @@
 #
 # Run the Ceryx API test suite, using Nose.
 
-set -e
+set -ex
 
-export CERYX_REDIS_PREFIX=ceryxtests
-
-nosetests
+mypy --ignore-missing-imports api.py
+pytest tests.py

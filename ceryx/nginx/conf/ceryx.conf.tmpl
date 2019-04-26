@@ -14,17 +14,9 @@ server {
     listen 443 ssl;
     default_type text/html;
 
-    ssl_certificate {{ default .Env.CERYX_SSL_CERT "/etc/ssl/resty-auto-ssl-fallback.crt" }};
-    ssl_certificate_key {{ default .Env.CERYX_SSL_CERT_KEY "/etc/ssl/resty-auto-ssl-fallback.key" }};
-
-    {{ if ne (lower (default .Env.CERYX_DISABLE_LETS_ENCRYPT "")) "true" }}
-    # Generate Let's Encrypt certificates automatically, if
-    # `CERYX_DISABLE_LETS_ENCRYPT` is *not* set to `true`.
-
-    ssl_certificate_by_lua_block {
-        auto_ssl:ssl_certificate()
-    }
-    {{ end }}
+    ssl_certificate {{ default .Env.CERYX_SSL_DEFAULT_CERTIFICATE "/etc/ceryx/ssl/default.crt" }};
+    ssl_certificate_key {{ default .Env.CERYX_SSL_DEFAULT_KEY "/etc/ceryx/ssl/default.key" }};
+    ssl_certificate_by_lua_file lualib/certificate.lua;
 
     location /.well-known/acme-challenge {
         content_by_lua_block {
