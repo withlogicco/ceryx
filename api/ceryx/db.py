@@ -106,28 +106,21 @@ class RedisClient:
         encoded_settings = encode_settings(settings or {})
         self.client.hmset(settings_key, encoded_settings)
 
-    def lookup(self, host, silent=False):
+    def _lookup_target(self, host):
         """
         Fetches the target host for the given host name. If no host matching
         the given name is found and silent is False, raises a LookupNotFound
         exception.
         """
         lookup_host = self._route_key(host)
-        target_host = self.client.get(lookup_host)
+        return self.client.get(lookup_host)
 
-        if target_host is None and not silent:
-            raise RedisClient.LookupNotFound("Given host does not match with any route")
-        else:
-            return _str(target_host)
-
-    def lookup_settings(self, host):
+    def _lookup_settings(self, host):
         """
         Fetches the settings of the given host name.
         """
         key = self._settings_key(host)
-        settings = self.client.hgetall(key)
-        decoded_settings = decode_settings(settings)
-        return decoded_settings
+        return self.client.hgetall(key)
 
     def lookup_hosts(self):
         """
@@ -139,16 +132,18 @@ class RedisClient:
         return [_str(key)[left_padding:] for key in keys]
     
     def get_route_for_host(self, host):
-        route = {
+        settings = self._lookup_settings(host)
+        target = self._lookup_target(host)
+        route = schemas.Route.from_redis({
             "source": host,
-            "target": self.lookup(host, silent=True),
-            "settings": self.lookup_settings(host),
-        }
+            "target": target,
+            "settings": settings
+        })
         return route
 
-    def lookup_routes(self):
+    def list_routes(self):
         """
-        Return all routes
+        Just return all routes
         """
         hosts = self.lookup_hosts()
         routes = [self.get_route_for_host(host) for host in hosts]

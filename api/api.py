@@ -7,7 +7,7 @@ client = RedisClient.from_config()
 
 @api.route("/api/routes/")
 async def list_routes(req, resp):
-    resp.media = ["test"]
+    resp.media = [dict(route) for route in client.list_routes()]
 
 if __name__ == '__main__':
     api.run()

@@ -40,10 +40,11 @@ def redis_to_value(field, redis_value):
 class BaseSchema(typesystem.Schema):
     @classmethod
     def from_redis(cls, redis_data):
-        return {
-            ensure_string(key): redis_to_value(self.fields[key], value)
-            for key, value in self.items()
+        data = {
+            ensure_string(key): redis_to_value(cls.fields[ensure_string(key)], value)
+            for key, value in redis_data.items()
         }
+        return cls.validate(data)
 
     def to_redis(self):
         return {
