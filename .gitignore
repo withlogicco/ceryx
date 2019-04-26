@@ -15,3 +15,6 @@ docker-compose.yaml
 # Ignore generated files from template
 ceryx/nginx/conf/ceryx.conf
 ceryx/nginx/conf/nginx.conf
+
+.mypy_cache
+.pytest_cache

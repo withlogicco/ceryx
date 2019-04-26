@@ -1,4 +1,10 @@
+import re
 import typesystem
+
+
+def ensure_protocol(url):
+    starts_with_protocol = r"^https?://"
+    return url if re.match(starts_with_protocol, url) else f"http://{url}"
 
 
 def boolean_to_redis(value: bool):
@@ -6,7 +12,7 @@ def boolean_to_redis(value: bool):
 
 
 def redis_to_boolean(value):
-    return True if "1" else False
+    return True if value == "1" else False
 
 
 def ensure_string(value):
@@ -50,6 +56,7 @@ class BaseSchema(typesystem.Schema):
         return {
             ensure_string(key): value_to_redis(self.fields[key], value)
             for key, value in self.items()
+            if value is not None
         }
 
 
@@ -72,3 +79,9 @@ class Route(BaseSchema):
     source = typesystem.String()
     target = typesystem.String()
     settings = typesystem.Reference(Settings, default=DEFAULT_SETTINGS)
+
+    @classmethod
+    def validate(cls, data):
+        if "target" in data.keys():
+            data["target"] = ensure_protocol(data["target"])
+        return super().validate(data)

@@ -1,191 +1,106 @@
-import unittest
+import uuid
 
-from apistar import test
+import pytest
 
-from app import app
-
-
-CLIENT = test.TestClient(app)
+from api import api
+from ceryx import schemas
 
 
-class CeryxTestCase(unittest.TestCase):
-    def setUp(self):
-        self.client = CLIENT
-
-    def test_list_routes(self):
-        """
-        Assert that listing routes will return a JSON list.
-        """
-        response = self.client.get("/api/routes")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(type(response.json()), list)
-
-    def test_create_route_without_protocol(self):
-        """
-        Assert that creating a route, will result in the appropriate route.
-        """
-        request_body = {"source": "test.dev", "target": "localhost:11235"}
-        response_body = {
-            "source": "test.dev",
-            "target": "http://localhost:11235",
-            "settings": {"enforce_https": False, "mode": "proxy"},
-        }
-
-        # Create a route and assert valid data in response
-        response = self.client.post("/api/routes", json=request_body)
-        self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), response_body)
-
-        # Also get the route and assert valid data
-        response = self.client.get("/api/routes/test.dev")
-        self.assertDictEqual(response.json(), response_body)
-
-    def test_create_route_with_http_protocol(self):
-        """
-        Assert that creating a route, will result in the appropriate route.
-        """
-        request_body = {"source": "test.dev", "target": "http://localhost:11235"}
-        response_body = {
-            "source": "test.dev",
-            "target": "http://localhost:11235",
-            "settings": {"enforce_https": False, "mode": "proxy"},
-        }
-
-        # Create a route and assert valid data in response
-        response = self.client.post("/api/routes", json=request_body)
-        self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), response_body)
-
-        # Also get the route and assert valid data
-        response = self.client.get("/api/routes/test.dev")
-        self.assertDictEqual(response.json(), response_body)
-
-    def test_create_route_with_https_protocol(self):
-        """
-        Assert that creating a route, will result in the appropriate route.
-        """
-        request_body = {"source": "test.dev", "target": "https://localhost:11235"}
-        response_body = {
-            "source": "test.dev",
-            "target": "https://localhost:11235",
-            "settings": {"enforce_https": False, "mode": "proxy"},
-        }
-
-        # Create a route and assert valid data in response
-        response = self.client.post("/api/routes", json=request_body)
-        self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), response_body)
-
-        # Also get the route and assert valid data
-        response = self.client.get("/api/routes/test.dev")
-        self.assertDictEqual(response.json(), response_body)
-
-    def test_enforce_https(self):
-        """
-        Assert that creating a route with the `enforce_https` settings returns
-        the expected results
-        """
-        route_without_enforce_https_request_body = {
-            "source": "test-no-enforce-https.dev",
-            "target": "http://localhost:11235",
-        }
-        route_enforce_https_true = {
-            "source": "test-enforce-https-true.dev",
-            "target": "http://localhost:11235",
-            "settings": {"enforce_https": True, "mode": "proxy"},
-        }
-        route_enforce_https_false = {
-            "source": "test-enforce-https-false.dev",
-            "target": "http://localhost:11235",
-            "settings": {"enforce_https": False, "mode": "proxy"},
-        }
-        route_without_enforce_https_response_body = {
-            "source": "test-no-enforce-https.dev",
-            "target": "http://localhost:11235",
-            "settings": {"enforce_https": False, "mode": "proxy"},
-        }
-
-        response = self.client.post(
-            "/api/routes", json=route_without_enforce_https_request_body
-        )
-        self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), route_without_enforce_https_response_body)
-
-        response = self.client.get("/api/routes/test-no-enforce-https.dev")
-        self.assertDictEqual(response.json(), route_without_enforce_https_response_body)
-
-        response = self.client.post("/api/routes", json=route_enforce_https_true)
-        self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), route_enforce_https_true)
-
-        response = self.client.get("/api/routes/test-enforce-https-true.dev")
-        self.assertDictEqual(response.json(), route_enforce_https_true)
-
-        response = self.client.post("/api/routes", json=route_enforce_https_false)
-        self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), route_enforce_https_false)
-
-        response = self.client.get("/api/routes/test-enforce-https-false.dev")
-        self.assertDictEqual(response.json(), route_enforce_https_false)
-
-    def test_mode(self):
-        """
-        Assert that creating a route with or without the `mode` setting returns
-        the expected results.
-        """
-        route_without_mode = {
-            "source": "www.my-website.dev",
-            "target": "http://localhost:11235",
-        }
-        route_mode_proxy = {
-            "source": "www.my-website.dev",
-            "target": "http://localhost:11235",
-            "settings": {"enforce_https": False, "mode": "proxy"},
-        }
-        route_mode_redirect = {
-            "source": "my-website.dev",
-            "target": "http://www.my-website.dev",
-            "settings": {"enforce_https": False, "mode": "redirect"},
-        }
-
-        response = self.client.post("/api/routes", json=route_without_mode)
-        self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), route_mode_proxy)
-
-        response = self.client.get("/api/routes/www.my-website.dev")
-        self.assertDictEqual(response.json(), route_mode_proxy)
-
-        response = self.client.post("/api/routes", json=route_mode_proxy)
-        self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), route_mode_proxy)
-
-        response = self.client.get("/api/routes/www.my-website.dev")
-        self.assertDictEqual(response.json(), route_mode_proxy)
-
-        response = self.client.post("/api/routes", json=route_mode_redirect)
-        self.assertEqual(response.status_code, 201)
-        self.assertDictEqual(response.json(), route_mode_redirect)
-
-        response = self.client.get("/api/routes/my-website.dev")
-        self.assertDictEqual(response.json(), route_mode_redirect)
-
-    def test_delete_route(self):
-        """
-        Assert that deleting a route, will actually delete it.
-        """
-        route_data = {"source": "test.dev", "target": "http://localhost:11235"}
-
-        # Create a route
-        response = self.client.post("/api/routes", json=route_data)
-
-        # Delete the route
-        response = self.client.delete("/api/routes/test.dev")
-        self.assertEqual(response.status_code, 204)
-
-        # Also get the route and assert that it does not exist
-        response = self.client.get("/api/routes/test.dev")
-        self.assertEqual(response.status_code, 404)
+@pytest.fixture
+def client():
+    return api.requests
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.fixture
+def host():
+    return f"{uuid.uuid4()}.api.ceryx.test"
+
+
+def test_list_routes(client, host):
+    """
+    Assert that listing routes will return a JSON list.
+    """
+    route_1 = schemas.Route.validate({
+        "source": f"route-1-{host}",
+        "target": "http://somewhere",
+    })
+    client.post("/api/routes/", json=dict(route_1))
+
+    route_2 = schemas.Route.validate({
+        "source": f"route-2-{host}",
+        "target": "http://somewhere",
+    })
+    client.post("/api/routes/", json=dict(route_2))
+
+    response = client.get("/api/routes/")
+    assert response.status_code == 200
+
+    route_list = response.json()
+    assert dict(route_1) in route_list
+    assert dict(route_2) in route_list
+
+
+def test_create_route(client, host):
+    """
+    Assert that creating a route, will result in the appropriate route.
+    """
+    route = schemas.Route.validate({
+        "source": host,
+        "target": "http://somewhere",
+    })
+
+    # Create a route and assert valid data in response
+    response = client.post("/api/routes/", json=dict(route))
+    assert response.status_code == 201
+    assert response.json() == dict(route)
+
+    # Also get the route and assert valid data
+    response = client.get(f"/api/routes/{host}/")
+    assert response.status_code == 200
+    assert response.json() == dict(route)
+
+
+def test_update_route(client, host):
+    """
+    Assert that creating a route, will result in the appropriate route.
+    """
+    route = schemas.Route.validate({
+        "source": host,
+        "target": "http://somewhere",
+    })
+
+    client.post("/api/routes/", json=dict(route))
+
+    updated_route = schemas.Route.validate({
+        "source": host,
+        "target": "http://somewhere-else",
+    })
+    updated_route_payload = dict(updated_route)
+    del updated_route_payload["source"]  # We should not need that
+    response = client.put(f"/api/routes/{host}/", json=updated_route_payload)
+
+    # Also get the route and assert valid data
+    assert response.status_code == 200
+    assert response.json() == dict(updated_route)
+
+
+def test_delete_route(client, host):
+    """
+    Assert that deleting a route, will actually delete it.
+    """
+    route = schemas.Route.validate({
+        "source": host,
+        "target": "http://somewhere",
+    })
+
+    # Create a route
+    client.post("/api/routes/", json=dict(route))
+
+    # Delete the route
+    response = client.delete(f"/api/routes/{host}/")
+    assert response.status_code == 204
+
+    # Also get the route and assert that it does not exist
+    response = client.get(f"/api/routes/{host}/")
+    assert response.status_code == 404
+
