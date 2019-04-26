@@ -15,4 +15,7 @@ COPY . ./
 ENV CERYX_DEBUG true
 ENV CERYX_DISABLE_LETS_ENCRYPT true
 
+COPY --from=sourcelair/ceryx:latest /etc/ceryx/ssl/default.key /etc/ceryx/ssl/default.key
+COPY --from=sourcelair/ceryx:latest /etc/ceryx/ssl/default.crt /etc/ceryx/ssl/default.crt
+
 CMD ["pytest", "tests/"]
