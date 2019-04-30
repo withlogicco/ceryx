@@ -1,9 +1,0 @@
-#! /bin/sh
-#
-# Run the Ceryx API test suite, using Nose.
-
-set -e
-
-export CERYX_REDIS_PREFIX=ceryxtests
-
-nosetests

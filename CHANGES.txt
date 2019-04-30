@@ -1,1 +1,0 @@
-v0.2.0, 05/06/2015 -- Initial release using NGINX OpenResty and Lua extension.
