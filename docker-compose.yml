@@ -15,6 +15,7 @@ services:
       CERYX_DOCKERIZE_EXTRA_ARGS: -no-overwrite
       CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
       CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
+      CERYX_REDIS_TIMEOUT: ${CERYX_REDIS_TIMEOUT:-100}
     command:
       - usr/local/openresty/bin/openresty
       - -g
@@ -32,6 +33,7 @@ services:
       CERYX_DEBUG: ${CERYX_DEBUG:-false}
       CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
       CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
+      CERYX_REDIS_TIMEOUT: ${CERYX_REDIS_TIMEOUT:-100}
       
   redis:
     image: redis:3.2.11-alpine

@@ -5,6 +5,7 @@ local prefix = utils.getenv("CERYX_REDIS_PREFIX", "ceryx")
 local host = utils.getenv("CERYX_REDIS_HOST", "127.0.0.1")
 local port = utils.getenv("CERYX_REDIS_PORT", 6379)
 local password = utils.getenv("CERYX_REDIS_PASSWORD", nil)
+local timeout = utils.getenv("CERYX_REDIS_TIMEOUT", 100)  -- 100 ms
 
 local exports = {}
 
@@ -13,7 +14,7 @@ function exports.client()
     ngx.log(ngx.DEBUG, "Preparing Redis client.")
 
     local red = redis:new()
-    red:set_timeout(100) -- 100 ms
+    red:set_timeout(timeout) 
 
     local res, err = red:connect(host, port)
 

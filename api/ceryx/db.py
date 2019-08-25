@@ -23,10 +23,11 @@ class RedisClient:
             settings.REDIS_PASSWORD,
             0,
             settings.REDIS_PREFIX,
+            settings.REDIS_TIMEOUT,
         )
 
-    def __init__(self, host, port, password, db, prefix):
-        self.client = redis.StrictRedis(host=host, port=port, password=password, db=db)
+    def __init__(self, host, port, password, db, prefix, timeout):
+        self.client = redis.StrictRedis(host=host, port=port, password=password, db=db, socket_timeout=timeout, socket_connect_timeout=timeout)
         self.prefix = prefix
     
     def _prefixed_key(self, key):
