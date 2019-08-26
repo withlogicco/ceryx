@@ -25,7 +25,7 @@ function getTargetForSource(source, redisClient)
 
         -- Construct Redis key for $wildcard
         key = getRouteKeyForSource("$wildcard")
-        target, _ = redisClient:get(wildcardKey)
+        target, _ = redisClient:get(key)
 
         if targetIsInValid(target) then
             return nil
