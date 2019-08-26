@@ -30,6 +30,7 @@ Ceryx is configured with the following environment variables:
   - `CERYX_REDIS_PASSWORD`: Optional password to use for authenticating with Redis (default: None)
   - `CERYX_REDIS_PORT`: The where Redis should be reached (default: `6379`)
   - `CERYX_REDIS_PREFIX`: The prefix to use in Ceryx-related Redis keys (default: `ceryx`)
+  - `CERYX_REDIS_TIMEOUT`: The timeout for all Redis operations, including the intial connection to Redis, specified in milliseconds (default: `100`)
   - `CERYX_SSL_DEFAULT_CERTIFICATE`: The path to the fallback SSL certificate (default: `/etc/ceryx/ssl/default.crt` — randomly generated at build time)
   - `CERYX_SSL_DEFAULT_KEY`: The path to the fallback SSL certificate key (default: `/etc/ceryx/ssl/default.key` — randomly generated at build time)
 
