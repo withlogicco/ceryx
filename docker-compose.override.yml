@@ -1,5 +1,9 @@
 version: '3.7'
 
+x-common-dev-settings:
+  &common-dev-settings
+  CERYX_DEBUG: ${CERYX_DEBUG:-true}
+
 services:
   ceryx:
     build: ./ceryx
@@ -8,7 +12,7 @@ services:
       - ./ceryx/nginx/lualib:/usr/local/openresty/nginx/lualib
       - ./ceryx/static:/etc/ceryx/static
     environment:
-      CERYX_DEBUG: ${CERYX_DEBUG:-true}
+      <<: *common-dev-settings
       CERYX_DOCKERIZE_EXTRA_ARGS: ""
 
   api:
@@ -16,8 +20,8 @@ services:
     volumes:
       - ./api:/opt/ceryx
     environment:
+      <<: *common-dev-settings
       CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-api.ceryx.dev}
-      CERYX_DEBUG: ${CERYX_DEBUG:-true}
     command: uvicorn --reload --host 0.0.0.0 --port 5555 api:api
 
 networks:
