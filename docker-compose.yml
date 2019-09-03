@@ -1,5 +1,13 @@
 version: '3.7'
 
+x-common-settings:
+  &common-settings
+  CERYX_DEBUG: ${CERYX_DEBUG:-false}
+  CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
+  CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
+  CERYX_REDIS_TIMEOUT: ${CERYX_REDIS_TIMEOUT:-100}
+
+
 services:
   ceryx:
     image: sourcelair/ceryx:latest
@@ -9,13 +17,11 @@ services:
     depends_on:
       - redis
     environment:
+      <<: *common-settings
       CERYX_DISABLE_LETS_ENCRYPT: ${CERYX_DISABLE_LETS_ENCRYPT:-false}
       CERYX_SSL_DEFAULT_CERTIFICATE: ${CERYX_SSL_DEFAULT_CERTIFICATE:-/etc/ceryx/ssl/default.crt}
       CERYX_SSL_DEFAULT_KEY: ${CERYX_SSL_DEFAULT_KEY:-/etc/ceryx/ssl/default.key}
       CERYX_DOCKERIZE_EXTRA_ARGS: -no-overwrite
-      CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
-      CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
-      CERYX_REDIS_TIMEOUT: ${CERYX_REDIS_TIMEOUT:-100}
     command:
       - usr/local/openresty/bin/openresty
       - -g
@@ -27,13 +33,10 @@ services:
       - redis
       - ceryx
     environment:
+      <<: *common-settings
       CERYX_API_HOST: ${CERYX_API_HOST:-0.0.0.0}
       CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-localhost}
       CERYX_API_PORT: ${CERYX_API_PORT:-5555}
-      CERYX_DEBUG: ${CERYX_DEBUG:-false}
-      CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
-      CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
-      CERYX_REDIS_TIMEOUT: ${CERYX_REDIS_TIMEOUT:-100}
       
   redis:
     image: redis:3.2.11-alpine
