@@ -23,6 +23,14 @@ def redis_to_object(value):
     return json.loads(value)
 
 
+def integer_to_redis(value: int):
+    return str(value)
+
+
+def redis_to_integer(value):
+    return int(value)
+
+
 def ensure_string(value):
     redis_value = (
         None if value is None
@@ -41,6 +49,9 @@ def value_to_redis(field, value):
     if isinstance(field, typesystem.Object):
         return object_to_redis(value)
 
+    if isinstance(field, typesystem.Integer):
+        return integer_to_redis(value)
+
     return ensure_string(value)
 
 
@@ -53,6 +64,9 @@ def redis_to_value(field, redis_value):
 
     if isinstance(field, typesystem.Object):
         return redis_to_object(redis_value)
+
+    if isinstance(field, typesystem.Integer):
+        return redis_to_integer(redis_value)
 
     return ensure_string(redis_value)
 
@@ -84,6 +98,7 @@ class Settings(BaseSchema):
         default="proxy",
     )
     headers = typesystem.Object(default={}, properties=typesystem.String(max_length=100))
+    ttl = typesystem.Integer(allow_null=True)
     certificate_path = typesystem.String(allow_null=True)
     key_path = typesystem.String(allow_null=True)
 

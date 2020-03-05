@@ -76,7 +76,7 @@ class RedisClient:
     
     def _set_route(self, route: schemas.Route):
         redis_data = route.to_redis()
-        self._set_target(route.source, redis_data["target"])
+        self._set_target(route.source, redis_data["target"], route.settings.get("ttl"))
         self._set_settings(route.source, redis_data["settings"])
         return route
     
