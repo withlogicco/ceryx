@@ -8,7 +8,7 @@ api = responder.API()
 client = RedisClient.from_config()
 
 
-@api.route(default=True)
+@api.route("/", default=True)
 def default(req, resp):
     if not req.url.path.endswith("/"):
         api.redirect(resp, f"{req.url.path}/")
