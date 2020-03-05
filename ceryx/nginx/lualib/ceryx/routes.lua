@@ -16,7 +16,7 @@ end
 
 function getTargetForSource(source, redisClient)
     -- Construct Redis key and then
-    -- try to get target for host
+    -- try to get target for source
     local key = getRouteKeyForSource(source)
     local target, _ = redisClient:get(key)
 
@@ -69,7 +69,7 @@ function getRouteForSource(source)
         if targetIsInValid(route.target) then
             return nil
         end
-        cache:set(host, res, 5)
+        cache:set(source, res, 5)
         ngx.log(ngx.DEBUG, "Caching from " .. source .. " to " .. route.target .. " for 5 seconds.")
     end
 
