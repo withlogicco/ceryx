@@ -71,6 +71,7 @@ class RedisClient:
         self.client.set(key, target, ex=ttl)
 
     def _set_settings(self, source, settings):
+        self._delete_settings(source)
         key = self._settings_key(source)
         self.client.hmset(key, settings)
     
