@@ -16,26 +16,33 @@ function formatTarget(target)
     return target .. ngx.var.request_uri
 end
 
-function redirect(source, target)
-    ngx.log(ngx.INFO, "Redirecting request for " .. source .. " to " .. target .. ".")
+
+function redirect(source, target, headers)
+    ngx.log(ngx.INFO, "Redirecting request for " .. source)
+    for k,v in pairs(headers) do
+        ngx.headers[k] = v
+    end
     return ngx.redirect(target, ngx.HTTP_MOVED_PERMANENTLY)
 end
 
-function proxy(source, target)
+function proxy(source, target, headers)
     ngx.var.target = target
-    ngx.log(ngx.INFO, "Proxying request for " .. source .. " to " .. target .. ".")
+    for k,v in pairs(headers) do
+        ngx.req.set_header(k, v)
+end
+    ngx.log(ngx.INFO, "Proxying request for " .. source)
 end
 
-function routeRequest(source, target, mode)
+function routeRequest(source, target, mode, headers)
     ngx.log(ngx.DEBUG, "Received " .. mode .. " routing request from " .. source .. " to " .. target)
 
     target = formatTarget(target)
 
     if mode == "redirect" then
-        return redirect(source, target)
+        return redirect(source, target, headers)
     end
 
-    return proxy(source, target)
+    return proxy(source, target, headers)
 end
 
 if is_not_https then
@@ -62,4 +69,4 @@ if route == nil then
 end
 
 -- Save found key to local cache for 5 seconds
-routeRequest(host, route.target, route.mode)
+routeRequest(host, route.target, route.mode, route.headers)

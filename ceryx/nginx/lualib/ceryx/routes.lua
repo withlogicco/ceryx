@@ -1,4 +1,5 @@
 local redis = require "ceryx.redis"
+local cjson = require "cjson"
 
 local exports = {}
 
@@ -49,6 +50,18 @@ function getModeForSource(source, redisClient)
     return mode
 end
 
+function getHeadersForSource(source, redisClient)
+    ngx.log(ngx.DEBUG, "Get routing headers for " .. source .. ".")
+    local settings_key = getSettingsKeyForSource(source)
+    local headers, _ = cjson.decode(redisClient:hget(settings_key, "headers"))
+
+    if headers == ngx.null or not headers then
+        headers = {}
+    end
+
+    return headers
+end
+
 function getRouteForSource(source)
     local _
     local route = {}
@@ -74,6 +87,7 @@ function getRouteForSource(source)
     end
 
     route.mode = getModeForSource(source, redisClient)
+    route.headers = getHeadersForSource(source, redisClient)
 
     return route
 end
