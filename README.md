@@ -67,6 +67,25 @@ Just run the following command to run Ceryx in the background:
 docker-compose up -d
 ```
 
+### Running Ceryx in Kubernetes ###
+
+#### Kubernetes Requirements ####
+1. A Kubernetes cluster deployed with a public facing IP. Kubectl, Helm installed on your machine. Tiller installed on the cluster.  
+
+2. At least one domain/subdomain (or even a wildcard A record) resolving to the cluster IP address.  
+
+3. Edit the values file in .k8s/ceryx/values.yaml to suit your deployment needs.
+
+4. 
+```
+cd k8s
+
+helm install --debug --generate-name --values <path to your value file> ./ceryx
+
+Recommend: Add --dry-run to the above before deploying to check generated yaml. 
+
+```
+
 ### Exposing the API to the public
 
 **👋 Heads up!** Don't ever do this in production! Anyone from the internet will be able to access the Ceryx API and mess with it. It's useful for development/testing though.

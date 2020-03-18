@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{default "ceryx-api" .Values.ceryxApi.name }}
+  labels:
+    app: {{default "ceryx-api" .Values.ceryxApi.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+{{- if .Values.ceryxApi.service.labels -}}
+{{ toYaml .Values.ceryxApi.service.labels | indent 4}}
+{{- end }}
+{{- if .Values.ceryxApi.service.annotations }}
+  annotations:
+{{ toYaml .Values.ceryxApi.annotations | indent 8}}
+{{- end }}
+spec:
+  type: {{default "ClusterIP" .Values.ceryxApi.service.type }}
+  selector:
+    app: {{default "ceryx-api" .Values.ceryxApi.name }}
+  ports:
+  - name: {{default "ceryx-api" .Values.ceryxApi.name }}-http
+    port: {{default 5555 .Values.ceryxApi.containerPort.http }}
+  
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{default "ceryx-api" .Values.ceryxApi.name }}
+  labels:
+    app: {{default "ceryx-api" .Values.ceryxApi.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{default 1 .Values.ceryxApi.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{default "ceryx-api" .Values.ceryxApi.name }}
+  template:
+    metadata:
+      labels:
+        app: {{default "ceryx-api" .Values.ceryxApi.name }}
+    spec:
+{{- if .Values.ceryxApi.nodeSelector }}
+      nodeSelector: 
+{{ toYaml .Values.ceryxApi.nodeSelector | indent 12}}
+{{- end }}
+      containers:
+      - name: {{default "ceryx-api" .Values.ceryxApi.name }}
+        image: {{ .Values.ceryxApi.image.repository }}:{{default "latest" .Values.ceryxApi.image.tag }}
+        imagePullPolicy: {{default "IfNotPresent" .Values.ceryxApi.image.pullPolicy }}
+        ports:
+        - containerPort: {{default 5555 .Values.ceryxApi.containerPort.http }}
+        #command: ["usr/local/openresty/bin/openresty"]
+        #args: ["-g", "daemon off;"]
+        env:
+        - name: CERYX_DEBUG
+          value: {{default "false" .Values.envvars.CERYX_DEBUG | quote }}
+        - name: CERYX_MAX_REQUEST_BODY_SIZE
+          value: {{default "100m" .Values.envvars.CERYX_MAX_REQUEST_BODY_SIZE | quote }}
+        - name: CERYX_REDIS_HOST
+          value: {{required "Address of host is required." .Values.envvars.CERYX_REDIS_HOST | quote }}
+        - name: CERYX_REDIS_PORT
+          value: {{default 6379 .Values.ceryxRedis.containerPort.redis | quote }}
+        - name: CERYX_REDIS_PREFIX
+          value: {{default "ceryx" .Values.ceryxRedis.containerPort.redis | quote }}
+{{ if (not (empty .Values.ceryxRedis.password)) }}
+        - name: CERYX_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ceryx-redis-secret
+              key: CERYX_REDIS_PASSWORD
+{{end }}
+        - name: CERYX_REDIS_TIMEOUT
+          value: {{default 100 .Values.envvars.CERYX_REDIS_TIMEOUT | quote }}
+        - name: CERYX_DNS_RESOLVER
+          value: {{default "10.0.0.10" .Values.envvars.CERYX_DNS_RESOLVER  | quote }}
+        - name: CERYX_API_HOST
+          value: {{default "0.0.0.0" .Values.envvars.CERYX_API_HOST | quote }}
+        - name: CERYX_API_PORT
+          value: {{default 5555 .Values.ceryxApi.containerPort.http | quote }}
+    

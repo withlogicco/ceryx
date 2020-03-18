@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{default "ceryx-nginx" .Values.ceryxNginx.name }}
+  labels:
+    app: {{default "ceryx-nginx" .Values.ceryxNginx.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+{{ if .Values.ceryxNginx.service.labels }}
+{{ toYaml .Values.ceryxNginx.service.labels | indent 4}}
+{{ end }}
+{{ if .Values.ceryxNginx.service.annotations }}
+  annotations:
+{{ toYaml .Values.ceryxNginx.service.annotations | indent 4}}
+{{ end }}
+spec:
+{{ if (and (eq .Values.ceryxNginx.service.type "LoadBalancer") (not (empty .Values.ceryxNginx.service.loadBalancerIP))) }}
+  loadBalancerIP: {{ .Values.ceryxNginx.service.loadBalancerIP }}
+{{ end }}
+  type: {{ .Values.ceryxNginx.service.type }}
+  selector:
+    app: {{default "ceryx-nginx" .Values.ceryxNginx.name }}
+  ports:
+    - port: {{default 80 .Values.ceryxNginx.containerPort.http }}
+      targetPort: 80
+      protocol: TCP
+      name: {{default "ceryx-nginx" .Values.ceryxNginx.name }}-http
+    - port: {{default 443 .Values.ceryxNginx.containerPort.https }}
+      targetPort: 443
+      protocol: TCP
+      name: {{default "ceryx-nginx" .Values.ceryxNginx.name }}-https
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{default "ceryx-nginx" .Values.ceryxNginx.name }}
+  labels:
+    app: {{default "ceryx-nginx" .Values.ceryxNginx.name }}
+spec:
+  replicas: {{default 1 .Values.ceryxNginx.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{default "ceryx-nginx" .Values.ceryxNginx.name }}
+  template:
+    metadata:
+      labels:
+        app: {{default "ceryx-nginx" .Values.ceryxNginx.name }}
+    spec:
+{{- if .Values.ceryxNginx.nodeSelector }}
+      nodeSelector: 
+{{ toYaml .Values.ceryxNginx.nodeSelector | indent 8}}
+{{- end }}
+      containers:
+      - name: {{default "ceryx-nginx" .Values.ceryxNginx.name }}
+        image: {{ .Values.ceryxNginx.image.repository}}:{{default "latest" .Values.ceryxNginx.image.tag}}
+        imagePullPolicy: {{default "IfNotPresent" .Values.ceryxNginx.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.ceryxNginx.containerPort.http }}
+        - containerPort: {{ .Values.ceryxNginx.containerPort.https }}
+        env:
+        - name: CERYX_DEBUG
+          value: {{default "false" .Values.envvars.CERYX_DEBUG | quote }}
+        - name: CERYX_MAX_REQUEST_BODY_SIZE
+          value: {{default "100m" .Values.envvars.CERYX_MAX_REQUEST_BODY_SIZE | quote }}
+        - name: CERYX_REDIS_HOST
+          value: {{ .Values.envvars.CERYX_REDIS_HOST | quote }}
+        - name: CERYX_REDIS_PORT
+          value: {{default 6379 .Values.ceryxRedis.containerPort.redis | quote }}
+        - name: CERYX_REDIS_PREFIX
+          value: {{default "ceryx" .Values.ceryxRedis.containerPort.redis | quote }}
+
+{{ if (not (empty .Values.ceryxRedis.password)) }}
+        - name: CERYX_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ceryx-redis-secret
+              key: CERYX_REDIS_PASSWORD
+{{end }}
+        - name: CERYX_REDIS_TIMEOUT
+          value: {{default "100" .Values.envvars.CERYX_REDIS_TIMEOUT | quote }}
+        - name: CERYX_DISABLE_LETS_ENCRYPT
+          value: {{default "false" .Values.envvars.CERYX_DISABLE_LETS_ENCRYPT | quote }}
+        - name: CERYX_SSL_DEFAULT_CERTIFICATE
+          value: {{default "/etc/ceryx/ssl/default.crt" .Values.envvars.CERYX_SSL_DEFAULT_CERTIFICATE }}
+        - name: CERYX_SSL_DEFAULT_KEY
+          value: {{default "/etc/ceryx/ssl/default.key" .Values.envvars.CERYX_SSL_DEFAULT_KEY }}
+        - name: CERYX_DNS_RESOLVER
+          value: {{default "10.0.0.10" .Values.envvars.CERYX_DNS_RESOLVER  | quote }}
+{{ if (and (eq .Values.ceryxNginx.useHTTPSCert true) (not (empty .Values.ceryxNginx.secretName))) }}
+        volumeMounts:
+          - name: certificatesvolume
+            mountPath: {{default "/etc/ceryx/ssl" .Values.ceryxNginx.certMountPath | quote }}
+            readOnly: true
+      volumes:
+        - name: certificatesvolume
+          secret:
+            secretName: {{ .Values.ceryxNginx.secretName }}
+{{ end }}
+
