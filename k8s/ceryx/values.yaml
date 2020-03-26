@@ -1,0 +1,77 @@
+# Default values for ceryx.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+ceryxNginx:
+  name: "ceryx-nginx"
+  replicaCount: 1
+  nodeSelector: { beta.kubernetes.io/os: linux }
+  image: 
+    repository: "sourcelair/ceryx"
+    tag: "latest"
+    pullPolicy: "IfNotPresent"
+  containerPort:
+    http: 80
+    https: 443
+  #true if you want to mount a cert and key as a secret.
+  useHTTPSCert: true
+  secretName: "your-cert-secret-name"
+  certMountPath: "/etc/ceryx/ssl"
+  service:
+    labels: {}
+    annotations: {}
+    loadBalancerIP:
+    #Only checked implementation on LoadBalancer.
+    type: "LoadBalancer"
+
+ceryxApi:
+  name: "ceryx-api"
+  replicaCount: 1
+  nodeSelector: { beta.kubernetes.io/os: linux }
+  image:
+    repository: "sourcelair/ceryx-api"
+    tag: "latest"
+    pullPolicy: "IfNotPresent"
+  containerPort:
+    http: 5555
+  service:
+    type: "ClusterIP"
+
+ceryxRedis:
+  name: "ceryx-redis"
+  replicaCount: 1
+  image:
+    repository: "redis"
+    tag: "3.2.11-alpine"
+    pullPolicy: "IfNotPresent"
+  containerPort: 
+    redis: 6379
+  #If not specified, then no password assumed.
+  #TODO: Password shouldn't be in values file.  
+  password: 
+  #Size of persistent volume housing redis database on disk. Default: 5Gi
+  storage: "5Gi"
+
+
+envvars:
+  #Default: 0.0.0.0
+  CERYX_API_HOST: "0.0.0.0"
+  #Default: false
+  CERYX_DEBUG: "false"
+  # Default: 10.0.0.10 . May need to change in your cluster. 
+  CERYX_DNS_RESOLVER: "10.0.0.10"
+  #Default: 100m
+  CERYX_MAX_REQUEST_BODY_SIZE: "100m"
+  # DNS Address of Redis Host. May need to change. 
+  CERYX_REDIS_HOST: "ceryx-redis.default.svc.cluster.local"
+  #Default: ceryx
+  CERYX_REDIS_PREFIX: "ceryx"
+  #Default: 100
+  CERYX_REDIS_TIMEOUT: 100
+  #Default: "true". Recommend cert manager for LE in Kubernetes
+  #https://github.com/jetstack/cert-manager
+  CERYX_DISABLE_LETS_ENCRYPT: "true"
+  # If cert/key is mounted via a secret, you may change the below to match. 
+  CERYX_SSL_DEFAULT_CERTIFICATE: "/etc/ceryx/ssl/tls.crt"
+  CERYX_SSL_DEFAULT_KEY: "/etc/ceryx/ssl/tls.key"
+

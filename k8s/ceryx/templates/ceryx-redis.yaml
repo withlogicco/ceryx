@@ -1,0 +1,87 @@
+{{ if (not (empty .Values.ceryxRedis.password)) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceryx-redis-secret
+  labels:
+    app: {{default "ceryx-redis" .Values.ceryxRedis.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+type: Opaque
+data:
+  CERYX_REDIS_PASSWORD: {{ .Values.ceryxRedis.password | b64enc }}
+---
+{{end}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ceryx-redis-volume-claim
+  labels:
+    app: {{default "ceryx-redis" .Values.ceryxRedis.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{default "5Gi" .Values.ceryxRedis.storage }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{default "ceryx-redis" .Values.ceryxRedis.name }}
+  labels:
+    app: {{default "ceryx-redis" .Values.ceryxRedis.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+spec:
+  ports:
+    - port: {{default 6379 .Values.ceryxRedis.containerPort.redis }}
+      name: ceryx-redis
+  clusterIP: None
+  selector:
+    app: {{default "ceryx-redis" .Values.ceryxRedis.name }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{default "ceryx-redis" .Values.ceryxRedis.name }}
+  labels:
+    app: {{default "ceryx-redis" .Values.ceryxRedis.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+spec:
+  selector:
+    matchLabels:
+          app: {{default "ceryx-redis" .Values.ceryxRedis.name }}  # has to match .spec.template.metadata.labels
+  serviceName: {{default "ceryx-redis" .Values.ceryxRedis.name }}
+  replicas: {{default 1 .Values.ceryxRedis.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{default "ceryx-redis" .Values.ceryxRedis.name }}  # has to match .spec.selector.matchLabels
+    spec:
+      containers:
+      - name: {{default "redis" .Values.ceryxRedis.image.repository }}
+        image: {{default "redis" .Values.ceryxRedis.image.repository }}:{{default "latest" .Values.ceryxRedis.image.tag }}
+        imagePullPolicy: {{default "redis" .Values.ceryxRedis.image.pullPolicy }}
+{{ if (not (empty .Values.ceryxRedis.password)) }}        
+        args: ["--requirepass", "$(CERYX_REDIS_PASSWORD)", "--appendonly", "yes", "--save", "900", "1", "--save", "30", "2"]       
+{{else }}
+        args: ["--appendonly", "yes", "--save", "900", "1", "--save", "30", "2"]      
+{{end}}
+        ports:
+          - containerPort: {{default 6379 .Values.ceryxRedis.containerPort.redis }}
+            name: ceryx-redis
+        env:
+{{ if (not (empty .Values.ceryxRedis.password)) }}
+        - name: CERYX_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ceryx-redis-secret
+              key: CERYX_REDIS_PASSWORD
+{{ end }}
+        volumeMounts:
+          - name: ceryx-redis-volume
+            mountPath: /data
+      volumes:
+        - name: ceryx-redis-volume
+          persistentVolumeClaim:
+            claimName: ceryx-redis-volume-claim 
