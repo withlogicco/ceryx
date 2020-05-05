@@ -1,10 +1,9 @@
 """
 Simple Redis client, implemented the data logic of Ceryx.
 """
-import redis
-
+#import redis
+from rediscluster import RedisCluster
 from ceryx import exceptions, schemas, settings
-
 
 def _str(subject):
     return subject.decode("utf-8") if type(subject) == bytes else str(bytes)
@@ -27,8 +26,10 @@ class RedisClient:
         )
 
     def __init__(self, host, port, password, db, prefix, timeout):
-        self.client = redis.StrictRedis(host=host, port=port, password=password, db=db, socket_timeout=timeout, socket_connect_timeout=timeout)
+        #self.client = redis.StrictRedis(host=host, port=port, password=password, db=db, socket_timeout=timeout, socket_connect_timeout=timeout)
+        self.client = RedisCluster(host=host, port=port, decode_responses=True)
         self.prefix = prefix
+        
     
     def _prefixed_key(self, key):
         return f"{self.prefix}:{key}"
@@ -48,6 +49,7 @@ class RedisClient:
         self.client.delete(key)
 
     def _lookup_target(self, host, raise_exception=False):
+        print ("HOST === " + host)
         key = self._route_key(host)
         target = self.client.get(key)
         
@@ -62,9 +64,19 @@ class RedisClient:
 
     def lookup_hosts(self, pattern="*"):
         lookup_pattern = self._route_key(pattern)
+        print ("---> lookup_pattern --->", lookup_pattern)
         left_padding = len(lookup_pattern) - 1
+        print ("---> left_padding ---> ", left_padding)
         keys = self.client.keys(lookup_pattern)
-        return [_str(key)[left_padding:] for key in keys]
+        print ("Keys ---->")
+        print(keys)
+        print(*keys, sep=", ")
+        newKeys = []
+        for key in range(len(keys)) :
+            temp=keys[key]
+            newKeys.append(temp[left_padding:])
+        #return [_str(key)[left_padding:] for key in keys]
+        return newKeys
     
     def _set_target(self, host, target):
         key = self._route_key(host)
@@ -81,6 +93,8 @@ class RedisClient:
         return route
     
     def get_route(self, host):
+        print ("in get_route ....... host ===> ")
+        print (host)
         target = self._lookup_target(host, raise_exception=True)
         settings = self._lookup_settings(host)
         route = schemas.Route.from_redis({
@@ -92,6 +106,8 @@ class RedisClient:
 
     def list_routes(self):
         hosts = self.lookup_hosts()
+        print ("hosts ===> ")
+        print(*hosts, sep = ", ")
         routes = [self.get_route(host) for host in hosts]
         return routes
     
@@ -107,3 +123,4 @@ class RedisClient:
     def delete_route(self, host: str):
         self._delete_target(host)
         self._delete_settings(host)
+

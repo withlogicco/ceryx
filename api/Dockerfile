@@ -1,6 +1,6 @@
-FROM python:3.6
+FROM python:3.7
 
-RUN pip install pipenv==11.9.0
+RUN pip install pipenv==2018.11.26
 
 RUN mkdir /etc/ceryx
 COPY Pipfile Pipfile.lock /etc/ceryx/

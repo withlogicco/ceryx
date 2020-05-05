@@ -7,7 +7,7 @@ data
 docker-compose.yaml
 .stolos
 .vscode
-
+.idea
 # Ignore Vim files
 *.swp
 *.swo

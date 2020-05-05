@@ -17,7 +17,7 @@ if SECRET_KEY:
         SECRET_KEY = f.read()
 
 REDIS_HOST = os.getenv("CERYX_REDIS_HOST", "127.0.0.1")
-REDIS_PORT = int(os.getenv("CERYX_REDIS_PORT", 6379))
+REDIS_PORT = int(os.getenv("CERYX_REDIS_PORT", 7000))
 REDIS_PASSWORD = os.getenv("CERYX_REDIS_PASSWORD", None)
 REDIS_PREFIX = os.getenv("CERYX_REDIS_PREFIX", "ceryx")
 REDIS_TIMEOUT = int(os.getenv("CERYX_REDIS_TIMEOUT", 100)) * 0.001 # Python Redis client requires units of seconds

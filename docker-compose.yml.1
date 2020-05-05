@@ -2,9 +2,9 @@ version: '3.7'
 
 x-common-settings:
   &common-settings
-  CERYX_DEBUG: ${CERYX_DEBUG:-true}
-  CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-192.168.32.2}
-  CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
+  CERYX_DEBUG: ${CERYX_DEBUG:-false}
+  CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-127.0.0.1}
+  CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-7000}
   CERYX_REDIS_TIMEOUT: ${CERYX_REDIS_TIMEOUT:-100}
 
 
@@ -14,6 +14,8 @@ services:
     ports:
       - ${CERYX_EXTERNAL_PORT:-80}:80
       - ${CERYX_EXTERNAL_SSL_PORT:-443}:443
+    depends_on:
+      - redis
     environment:
       <<: *common-settings
       CERYX_DISABLE_LETS_ENCRYPT: ${CERYX_DISABLE_LETS_ENCRYPT:-false}
@@ -27,8 +29,9 @@ services:
       
   api:
     #image: sourcelair/ceryx-api:latest
-    image: sree-ceryx-api:v1
+    image: sree-ceryx-api
     depends_on:
+      - redis
       - ceryx
     environment:
       <<: *common-settings
@@ -36,9 +39,16 @@ services:
       CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-localhost}
       CERYX_API_PORT: ${CERYX_API_PORT:-5555}
       
+  redis:
+    image: redis:3.2.11-alpine
+    volumes:
+      - redis_data:/data
+
 networks:
   default:
     attachable: true
     driver: overlay
     name: ceryx
 
+volumes:
+  redis_data:

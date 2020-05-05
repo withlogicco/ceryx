@@ -5,15 +5,17 @@ name = "pypi"
 
 [packages]
 redis = "*"
+redis-py-cluster = "*"
 requests = ">=2.21.0"
 typesystem = "*"
-responder = "*"
+responder = ">=2.0.5"
 
 [dev-packages]
 nose = "*"
 black = "==18.9b0"
 pytest = "*"
 mypy = "*"
+pylint = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7.7"
