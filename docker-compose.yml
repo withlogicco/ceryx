@@ -10,7 +10,7 @@ x-common-settings:
 
 services:
   ceryx:
-    image: sourcelair/ceryx:latest
+    image: sreedhar/ceryx
     ports:
       - ${CERYX_EXTERNAL_PORT:-80}:80
       - ${CERYX_EXTERNAL_SSL_PORT:-443}:443
@@ -26,8 +26,7 @@ services:
       - daemon off;
       
   api:
-    #image: sourcelair/ceryx-api:latest
-    image: sree-ceryx-api:v1
+    image: sreedhar/ceryx-api
     depends_on:
       - ceryx
     environment:
