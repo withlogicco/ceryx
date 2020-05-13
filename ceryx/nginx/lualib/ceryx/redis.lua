@@ -1,4 +1,5 @@
-local redis = require "resty.redis"
+--local redis = require "resty.redis"
+local rcluster = require "resty.rcluster"
 local utils = require "ceryx.utils"
 
 local prefix = utils.getenv("CERYX_REDIS_PREFIX", "ceryx")
@@ -13,8 +14,17 @@ function exports.client()
     -- Prepare the Redis client
     ngx.log(ngx.DEBUG, "Preparing Redis client.")
 
-    local red = redis:new()
-    red:set_timeout(timeout) 
+    --local red = redis:new()
+    --[[local server = {
+        { host = host, port = port}
+    }]]--
+    local red = rcluster:new({
+        timeout = timeout,
+        server = {
+            { host = host, port = port}
+        }
+    })
+    --red:set_timeout(timeout) 
 
     local res, err = red:connect(host, port)
 
