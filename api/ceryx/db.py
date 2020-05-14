@@ -1,7 +1,6 @@
 """
 Simple Redis client, implemented the data logic of Ceryx.
 """
-#import redis
 from rediscluster import RedisCluster
 from ceryx import exceptions, schemas, settings
 
@@ -26,8 +25,9 @@ class RedisClient:
         )
 
     def __init__(self, host, port, password, db, prefix, timeout):
-        #self.client = redis.StrictRedis(host=host, port=port, password=password, db=db, socket_timeout=timeout, socket_connect_timeout=timeout)
         self.client = RedisCluster(host=host, port=port, decode_responses=True)
+        print("Redis HOST ===> ")
+        print(host)
         self.prefix = prefix
         
     

@@ -1,0 +1,39 @@
+#!/bin/bash
+source ./env
+
+#docker pull sreedhar/ceryx:latest
+
+CONTAINER_NAME="ceryx-api"
+
+CTID=`docker ps -a | grep ${CONTAINER_NAME} | awk '{print $1}'`
+
+echo -e "CTID = $CTID"
+
+if [ ! -z $CTID ]; then
+        docker stop ${CONTAINER_NAME}; docker rm -f ${CONTAINER_NAME}
+fi
+
+#NETWORK="docker-redis-cluster_default"
+NETWORK="redis_cluster_net"
+
+
+#docker run -d --net ${NETWORK} --restart="unless-stopped" --name=${CONTAINER_NAME} \
+#	-e "CERYX_DEBUG=${CERYX_DEBUG}" \
+#	-e "CERYX_REDIS_HOST=${CERYX_REDIS_HOST}" \
+#	-e "CERYX_REDIS_PORT=${CERYX_REDIS_PORT}" \
+#	-e "CERYX_REDIS_TIMEOUT=${CERYX_REDIS_TIMEOUT}" \
+#	-e "CERYX_API_HOST=${CERYX_API_HOST}" \
+#   -e "CERYX_API_HOSTNAME=${CERYX_API_HOSTNAME}" \
+#  -e "CERYX_API_PORT=${CERYX_API_PORT}" \
+#	-p "${CERYX_API_EXTERNAL_PORT}:5555" \
+#	ceryx-api:v1
+
+docker run -d --net ${NETWORK} --restart="unless-stopped" --name=${CONTAINER_NAME} \
+	-e "CERYX_DEBUG=${CERYX_DEBUG}" \
+	-e "CERYX_REDIS_HOST=${CERYX_REDIS_HOST}" \
+	-e "CERYX_REDIS_PORT=${CERYX_REDIS_PORT}" \
+	-e "CERYX_REDIS_TIMEOUT=${CERYX_REDIS_TIMEOUT}" \
+	-e "CERYX_API_HOST=${CERYX_API_HOST}" \
+    -e "CERYX_API_HOSTNAME=${CERYX_API_HOSTNAME}" \
+    -e "CERYX_API_PORT=${CERYX_API_PORT}" \
+	ceryx-api:v4

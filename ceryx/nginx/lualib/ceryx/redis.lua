@@ -18,10 +18,17 @@ function exports.client()
     --[[local server = {
         { host = host, port = port}
     }]]--
+
+    local server = {}
+    --table.insert(server, { host = host, port = port})
+    --ngx.log(ngx.DEBUG, "Server = " .. server)
+
     local red = rcluster:new({
         timeout = timeout,
-        server = {
-            { host = host, port = port}
+        server =  {
+            {
+                ["host"] = host, ["port"] = port
+            },
         }
     })
     --red:set_timeout(timeout) 

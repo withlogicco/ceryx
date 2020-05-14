@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-redis = "*"
+#redis = "*"
 redis-py-cluster = "*"
 requests = ">=2.21.0"
 typesystem = "*"
@@ -18,4 +18,4 @@ mypy = "*"
 pylint = "*"
 
 [requires]
-python_version = "3.7.7"
+python_version = "3.7"
