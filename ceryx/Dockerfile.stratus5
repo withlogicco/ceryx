@@ -46,9 +46,11 @@ RUN rm -f /usr/local/openresty/nginx/conf/*
 COPY ./nginx/conf /usr/local/openresty/nginx/conf
 COPY ./nginx/lualib /usr/local/openresty/nginx/lualib
 COPY ./static /etc/ceryx/static
+COPY ./tools/redis-cli /usr/local/bin/redis-cli
 
 # Add the entrypoint script
 COPY ./bin/entrypoint.sh /entrypoint.sh
+
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 CMD ["/usr/local/openresty/bin/openresty", "-g", "daemon off;"]

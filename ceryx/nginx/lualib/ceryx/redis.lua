@@ -43,7 +43,7 @@ function exports.client()
 
     ngx.log(ngx.DEBUG, "Redis client prepared.")
 
-    if password then
+    --[[if password then
         ngx.log(ngx.DEBUG, "Authenticating with Redis.")
         local res, err = red:auth(password)
         if not res then
@@ -51,7 +51,7 @@ function exports.client()
             return ngx.exit(ngx.HTTP_SERVER_ERROR)
         end
     end
-    ngx.log(ngx.DEBUG, "Authenticated with Redis.")
+    ngx.log(ngx.DEBUG, "Authenticated with Redis.")]]--
 
     return red
 end
