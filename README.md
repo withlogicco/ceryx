@@ -103,7 +103,25 @@ docker-compose exec api bin/populate-api
 ```
 curl -H "Content-Type: application/json" \
      -X POST \
-     -d '{"source":"publicly.accessible.domain","target":"http://service.internal:8000"}' \
+     -d '{"source":"publicly.accessible.domain", "target":"http://service.internal:8000"}' \
+     http://ceryx-api-host/api/routes
+```
+
+The route can also feature a random UUID as source.
+
+```
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{"source":"some-random-uuid", "target":"http://service.internal:8000"}' \
+     http://ceryx-api-host/api/routes
+```
+
+A route may also have request params in the target.
+
+```
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{"source":"some-random-uuid", "target":"http://service.internal:8000?foo=bar&x=y"}' \
      http://ceryx-api-host/api/routes
 ```
 
@@ -145,6 +163,28 @@ Instead of proxying the request to the targetm you can prompt the client to redi
 curl -H "Content-Type: application/json" \
      -X POST \
      -d '{"source":"sourcelair.com","target":"https://www.sourcelair.com", "settings": {"mode": "redirect"}}' \
+     http://ceryx-api-host/api/routes
+```
+
+### Provide authorization (and other headers) for target connection
+
+If the route should be authorized behind ceryx you may deploy an authorization header with the route.
+
+```
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{"source":"sourcelair.com","target":"https://www.sourcelair.com", "settings": {"headers": {"authorization": "Bearer ..."}}}' \
+     http://ceryx-api-host/api/routes
+```
+
+### Give routes a TTL after which they become invalid
+
+If necessary you can provide a TTL in seconds for your routes after which they are removed from ceryx.
+
+```
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{"source":"sourcelair.com","target":"https://www.sourcelair.com", "settings": {"ttl": 20}}' \
      http://ceryx-api-host/api/routes
 ```
 
