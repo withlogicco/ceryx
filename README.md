@@ -198,6 +198,7 @@ Ceryx has proven to be extremely reliable in production systems, handling tens o
 
 - [**SourceLair**](https://www.sourcelair.com/): In-browser IDE for web applications, made publicly accessible via development web servers powered by Ceryx.
 - [**Stolos**](http://stolos.io/): Managed Docker development environments for enterprises.
+- [**othermo**](https://www.othermo.de): Industry 4.0 for heating plants and municipal utilities, using Ceryx to implement the [Data By-Pass Pattern](https://www.eclipse.org/ditto/advanced-data-by-pass.html) with [Eclipse Ditto](https://www.eclipse.org/ditto).
 
 Do you use Ceryx in production as well? Please [open a Pull Request](https://github.com/sourcelair/ceryx/pulls) to include it here. We would love to have it in our list.
 
