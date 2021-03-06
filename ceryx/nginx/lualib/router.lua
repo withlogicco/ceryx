@@ -33,7 +33,7 @@ function proxy(source, target, headers)
     ngx.var.target = target
     for k,v in pairs(headers) do
         ngx.req.set_header(k, v)
-end
+    end
     ngx.log(ngx.INFO, "Proxying request for " .. source)
 end
 
