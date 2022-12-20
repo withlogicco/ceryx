@@ -5,37 +5,46 @@ local utils = require "ceryx.utils"
 local redisClient = redis:client()
 
 local host = ngx.var.host
+local request_uri = ngx.var.request_uri:sub(2)
 local cache = ngx.shared.ceryx
 
 local is_not_https = (ngx.var.scheme ~= "https")
 
-function formatTarget(target)
+function formatTargetHostSource(target)
     target = utils.ensure_protocol(target)
     target = utils.ensure_no_trailing_slash(target)
-
     return target .. ngx.var.request_uri
 end
 
-function redirect(source, target)
-    ngx.log(ngx.INFO, "Redirecting request for " .. source .. " to " .. target .. ".")
+function formatTargetRequestUriSource(target)
+    target = utils.ensure_protocol(target)
+    return target
+end
+
+function redirect(source, target, headers)
+    ngx.log(ngx.INFO, "Redirecting request for " .. source)
+    for k,v in pairs(headers) do
+        ngx.headers[k] = v
+    end
     return ngx.redirect(target, ngx.HTTP_MOVED_PERMANENTLY)
 end
 
-function proxy(source, target)
+function proxy(source, target, headers)
     ngx.var.target = target
-    ngx.log(ngx.INFO, "Proxying request for " .. source .. " to " .. target .. ".")
+    for k,v in pairs(headers) do
+        ngx.req.set_header(k, v)
+    end
+    ngx.log(ngx.INFO, "Proxying request for " .. source)
 end
 
-function routeRequest(source, target, mode)
+function routeRequest(source, target, mode, headers)
     ngx.log(ngx.DEBUG, "Received " .. mode .. " routing request from " .. source .. " to " .. target)
 
-    target = formatTarget(target)
-
     if mode == "redirect" then
-        return redirect(source, target)
+        return redirect(source, target, headers)
     end
 
-    return proxy(source, target)
+    return proxy(source, target, headers)
 end
 
 if is_not_https then
@@ -53,13 +62,19 @@ if is_not_https then
     end
 end
 
-ngx.log(ngx.INFO, "HOST " .. host)
+ngx.log(ngx.INFO, "Try host route for " .. host)
 local route = routes.getRouteForSource(host)
 
-if route == nil then
-    ngx.log(ngx.INFO, "No $wildcard target configured for fallback. Exiting with Bad Gateway.")
-    return ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
+if route ~= nil then
+    return routeRequest(host, formatTargetHostSource(route.target), route.mode, route.headers)
 end
 
--- Save found key to local cache for 5 seconds
-routeRequest(host, route.target, route.mode)
+ngx.log(ngx.INFO, "Try request_uri route for " .. request_uri)
+route = routes.getRouteForSource(request_uri)
+
+if route ~= nil then
+    return routeRequest(request_uri, formatTargetRequestUriSource(route.target), route.mode, route.headers)
+end
+
+ngx.log(ngx.INFO, "No $wildcard target configured for fallback. Exiting with Bad Gateway.")
+ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)

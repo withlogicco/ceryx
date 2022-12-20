@@ -103,7 +103,16 @@ docker-compose exec api bin/populate-api
 ```
 curl -H "Content-Type: application/json" \
      -X POST \
-     -d '{"source":"publicly.accessible.domain","target":"http://service.internal:8000"}' \
+     -d '{"source": "any-valid-hostname", "target": "http://service.internal:8000"}' \
+     http://ceryx-api-host/api/routes
+```
+
+A route may also have request parameters in the target.
+
+```
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{"source": "any-valid-hostname", "target": "http://service.internal:8000?foo=bar&x=y"}' \
      http://ceryx-api-host/api/routes
 ```
 
@@ -112,8 +121,8 @@ curl -H "Content-Type: application/json" \
 ```
 curl -H "Content-Type: application/json" \
      -X PUT \
-     -d '{"source":"publicly.accessible.domain","target":"http://another-service.internal:8000"}' \
-     http://ceryx-api-host/api/routes/publicly.accessible.domain
+     -d '{"source": "any-valid-hostname", "target": "http://another-service.internal:8000"}' \
+     http://ceryx-api-host/api/routes/any-valid-hostname
 ```
 
 ### Delete a route from Ceryx
@@ -121,7 +130,7 @@ curl -H "Content-Type: application/json" \
 ```
 curl -H "Content-Type: application/json" \
      -X DELETE \
-     http://ceryx-api-host/api/routes/publicly.accessible.domain
+     http://ceryx-api-host/api/routes/any-valid-hostname
 ```
 
 ### Enforce HTTPS
@@ -131,7 +140,7 @@ You can enforce redirection from HTTP to HTTPS for any host you would like.
 ```
 curl -H "Content-Type: application/json" \
      -X POST \
-     -d '{"source":"publicly.accessible.domain","target":"http://service.internal:8000", "settings": {"enforce_https": true}}' \
+     -d '{"source": "www.sourcelair.com", "target":"http://service.internal:8000", "settings": {"enforce_https": true}}' \
      http://ceryx-api-host/api/routes
 ```
 
@@ -139,12 +148,34 @@ The above functionality works in `PUT` update requests as well.
 
 ### Redirect to target, instead of proxying
 
-Instead of proxying the request to the targetm you can prompt the client to redirect the request there itself.
+Instead of proxying the request to the target, you can prompt the client to redirect the request there itself.
 
 ```
 curl -H "Content-Type: application/json" \
      -X POST \
-     -d '{"source":"sourcelair.com","target":"https://www.sourcelair.com", "settings": {"mode": "redirect"}}' \
+     -d '{"source": "sourcelair.com", "target":"https://www.sourcelair.com", "settings": {"mode": "redirect"}}' \
+     http://ceryx-api-host/api/routes
+```
+
+### Include additional headers (e.g. `Authorization`) for target connection
+
+If the route should be authorized behind Ceryx you may deploy an `Authorization` header with the route.
+
+```
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{"source":"sourcelair.com", "target":"https://www.sourcelair.com", "settings": {"headers": {"authorization": "Bearer ..."}}}' \
+     http://ceryx-api-host/api/routes
+```
+
+### Give routes a TTL
+
+You can provide a TTL (in seconds) for your routes after which they are removed from Ceryx.
+
+```
+curl -H "Content-Type: application/json" \
+     -X POST \
+     -d '{"source":"sourcelair.com", "target": "https://www.sourcelair.com", "settings": {"ttl": 20}}' \
      http://ceryx-api-host/api/routes
 ```
 
@@ -158,6 +189,7 @@ Ceryx has proven to be extremely reliable in production systems, handling tens o
 
 - [**SourceLair**](https://www.sourcelair.com/): In-browser IDE for web applications, made publicly accessible via development web servers powered by Ceryx.
 - [**Stolos**](http://stolos.io/): Managed Docker development environments for enterprises.
+- [**othermo**](https://www.othermo.de): Industry 4.0 for heating plants and municipal utilities, using Ceryx to implement the [Data By-Pass Pattern](https://www.eclipse.org/ditto/advanced-data-by-pass.html) with [Eclipse Ditto](https://www.eclipse.org/ditto).
 
 Do you use Ceryx in production as well? Please [open a Pull Request](https://github.com/sourcelair/ceryx/pulls) to include it here. We would love to have it in our list.
 

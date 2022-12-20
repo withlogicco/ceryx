@@ -1,4 +1,5 @@
 local redis = require "ceryx.redis"
+local cjson = require "cjson"
 
 local exports = {}
 
@@ -16,7 +17,7 @@ end
 
 function getTargetForSource(source, redisClient)
     -- Construct Redis key and then
-    -- try to get target for host
+    -- try to get target for source
     local key = getRouteKeyForSource(source)
     local target, _ = redisClient:get(key)
 
@@ -49,6 +50,18 @@ function getModeForSource(source, redisClient)
     return mode
 end
 
+function getHeadersForSource(source, redisClient)
+    ngx.log(ngx.DEBUG, "Get routing headers for " .. source .. ".")
+    local settings_key = getSettingsKeyForSource(source)
+    local headers, _ = cjson.decode(redisClient:hget(settings_key, "headers"))
+
+    if headers == ngx.null or not headers then
+        headers = {}
+    end
+
+    return headers
+end
+
 function getRouteForSource(source)
     local _
     local route = {}
@@ -69,11 +82,12 @@ function getRouteForSource(source)
         if targetIsInValid(route.target) then
             return nil
         end
-        cache:set(host, res, 5)
+        cache:set(source, res, 5)
         ngx.log(ngx.DEBUG, "Caching from " .. source .. " to " .. route.target .. " for 5 seconds.")
     end
 
     route.mode = getModeForSource(source, redisClient)
+    route.headers = getHeadersForSource(source, redisClient)
 
     return route
 end
