@@ -1,8 +1,0 @@
-#! /bin/sh
-#
-# Run the Ceryx API test suite, using Nose.
-
-set -ex
-
-mypy --ignore-missing-imports api.py
-pytest tests.py
