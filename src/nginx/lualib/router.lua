@@ -1,13 +1,14 @@
-local redis = require "ceryx.redis"
 local routes = require "ceryx.routes"
+local settings = require "ceryx.settings"
 local utils = require "ceryx.utils"
-
-local redisClient = redis:client()
+local mtls = require "mtls"
 
 local host = ngx.var.host
 local cache = ngx.shared.ceryx
 
 local is_not_https = (ngx.var.scheme ~= "https")
+
+mtls.enforce(host)
 
 function formatTarget(target)
     target = utils.ensure_protocol(target)
@@ -39,16 +40,9 @@ function routeRequest(source, target, mode)
 end
 
 if is_not_https then
-    local settings_key = routes.getSettingsKeyForSource(host)
-    local enforce_https, flags = cache:get(host .. ":enforce_https")
+    local enforce_https = settings.getSettingForHost(host, "enforce_https", true)
 
-    if enforce_https == nil then
-        local res, flags = redisClient:hget(settings_key, "enforce_https")
-        enforce_https = tonumber(res)
-        cache:set(host .. ":enforce_https", enforce_https, 5)
-    end
-
-    if enforce_https == 1 then
+    if enforce_https == true or enforce_https == 1 or enforce_https == "true" or enforce_https == "1" then
         return ngx.redirect("https://" .. host .. ngx.var.request_uri, ngx.HTTP_MOVED_PERMANENTLY)
     end
 end

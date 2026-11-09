@@ -1,0 +1,20 @@
+# Build context is the repository root; send only what the Dockerfile uses.
+*
+!bin/
+!src/
+!tests/
+!docs/openapi.yaml
+!pyproject.toml
+!uv.lock
+
+# Files that change without changing the build; they would otherwise
+# invalidate the cache of `COPY tests` and `COPY src/...` layers.
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+**/.DS_Store
+**/*.swp
+**/*.swo
+**/*~

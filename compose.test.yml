@@ -1,0 +1,158 @@
+# Test stack. Extends the ceryx service in compose.yml, with its own project,
+# volumes, network and host ports, so it never touches a local stack or its
+# data. It runs on SQLite; the redis and redis-password profiles run the same
+# stack on Redis, without and with a password:
+#
+#   docker compose -f compose.test.yml run --rm test
+#   docker compose -f compose.test.yml --profile redis run --rm test-redis
+#   docker compose -f compose.test.yml --profile redis-password run --rm test-redis-password
+#
+# Run `docker compose -f compose.test.yml down -v` afterwards, or before
+# switching setups.
+name: ceryx-test
+
+services:
+  ceryx:
+    extends:
+      file: compose.yml
+      service: ceryx
+    build:
+      context: .
+      target: runtime
+    ports: !override
+      - ${CERYX_EXTERNAL_HTTP_PORT:-18080}:80
+      - ${CERYX_EXTERNAL_HTTPS_PORT:-18443}:443
+      - ${CERYX_EXTERNAL_API_PORT:-18081}:8080
+    volumes:
+      - test_data:/var/lib/ceryx
+      - test_certificates:/usr/local/share/certificates
+    environment:
+      CERYX_DEBUG: ${CERYX_DEBUG:-true}
+      CERYX_DISABLE_LETS_ENCRYPT: ${CERYX_DISABLE_LETS_ENCRYPT:-true}
+      CERYX_STORAGE_BACKEND: sqlite
+      CERYX_SQLITE_PATH: /var/lib/ceryx/test.db
+
+  # Ceryx with Let's Encrypt enabled, for the tests that need it. Its
+  # certificate authority is never reached.
+  ceryx-lets-encrypt:
+    extends:
+      service: ceryx
+    ports: !reset []
+    environment:
+      CERYX_DISABLE_LETS_ENCRYPT: "false"
+      CERYX_LETS_ENCRYPT_CA: http://127.0.0.1:9/directory
+
+  test:
+    build:
+      context: .
+      target: test
+    image: ceryx-test:${IMAGE_TAG:-latest}
+    environment:
+      CERYX_DEBUG: ${CERYX_DEBUG:-true}
+      CERYX_DISABLE_LETS_ENCRYPT: ${CERYX_DISABLE_LETS_ENCRYPT:-true}
+      CERYX_STORAGE_BACKEND: sqlite
+      CERYX_HOST: ceryx
+      CERYX_TEST_API_URL: http://ceryx:8080
+      CERYX_TEST_AUTO_START: "false"
+      CERYX_TEST_LETS_ENCRYPT_HOST: ceryx-lets-encrypt
+      CERYX_TEST_SQLITE_PATH: /var/lib/ceryx/test.db
+    volumes:
+      - ./tests:/usr/src/app/tests:ro
+      - ./docs/openapi.yaml:/usr/src/app/docs/openapi.yaml:ro
+      - test_data:/var/lib/ceryx
+      - test_certificates:/usr/local/share/certificates
+    depends_on:
+      - ceryx
+      - ceryx-lets-encrypt
+
+  # Profile redis: the same stack on Redis.
+  redis:
+    profiles: [redis]
+    image: redis:3.2.11-alpine
+    volumes:
+      - redis_test_data:/data
+
+  ceryx-redis:
+    profiles: [redis]
+    extends:
+      service: ceryx
+    environment:
+      CERYX_STORAGE_BACKEND: redis
+      CERYX_REDIS_HOST: redis
+    depends_on:
+      - redis
+
+  ceryx-redis-lets-encrypt:
+    profiles: [redis]
+    extends:
+      service: ceryx-lets-encrypt
+    environment:
+      CERYX_STORAGE_BACKEND: redis
+      CERYX_REDIS_HOST: redis
+    depends_on:
+      - redis
+
+  test-redis:
+    profiles: [redis]
+    extends:
+      service: test
+    environment:
+      CERYX_STORAGE_BACKEND: redis
+      CERYX_REDIS_HOST: redis
+      CERYX_HOST: ceryx-redis
+      CERYX_TEST_API_URL: http://ceryx-redis:8080
+      CERYX_TEST_LETS_ENCRYPT_HOST: ceryx-redis-lets-encrypt
+    depends_on: !override
+      - ceryx-redis
+      - ceryx-redis-lets-encrypt
+
+  # Profile redis-password: the same stack on a Redis that requires a password.
+  redis-password:
+    profiles: !override [redis-password]
+    extends:
+      service: redis
+    command: redis-server --requirepass ceryx
+
+  ceryx-redis-password:
+    profiles: !override [redis-password]
+    extends:
+      service: ceryx-redis
+    environment:
+      CERYX_REDIS_HOST: redis-password
+      CERYX_REDIS_PASSWORD: ceryx
+    depends_on: !override
+      - redis-password
+
+  ceryx-redis-password-lets-encrypt:
+    profiles: !override [redis-password]
+    extends:
+      service: ceryx-redis-lets-encrypt
+    environment:
+      CERYX_REDIS_HOST: redis-password
+      CERYX_REDIS_PASSWORD: ceryx
+    depends_on: !override
+      - redis-password
+
+  test-redis-password:
+    profiles: !override [redis-password]
+    extends:
+      service: test-redis
+    environment:
+      CERYX_REDIS_HOST: redis-password
+      CERYX_REDIS_PASSWORD: ceryx
+      CERYX_HOST: ceryx-redis-password
+      CERYX_TEST_API_URL: http://ceryx-redis-password:8080
+      CERYX_TEST_LETS_ENCRYPT_HOST: ceryx-redis-password-lets-encrypt
+    depends_on: !override
+      - ceryx-redis-password
+      - ceryx-redis-password-lets-encrypt
+
+networks:
+  default:
+    driver: bridge
+    name: ceryx-test
+
+volumes:
+  test_data:
+  test_certificates:
+  redis_test_data:

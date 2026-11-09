@@ -1,0 +1,40 @@
+{
+  "name": "Ceryx",
+  "dockerComposeFile": [
+    "compose.yml"
+  ],
+  "service": "ceryx",
+  "workspaceFolder": "/usr/src/app",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "sumneko.lua"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/uv/venv/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "[lua]": {
+          "editor.defaultFormatter": "sumneko.lua",
+          "editor.formatOnSave": true
+        },
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true
+        }
+      }
+    }
+  },
+  "remoteEnv": {
+    "CERYX_DEBUG": "true",
+    "CERYX_STORAGE_BACKEND": "sqlite"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:1": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  }
+}

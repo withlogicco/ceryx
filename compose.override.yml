@@ -1,0 +1,25 @@
+services:
+  ceryx:
+    image: ${IMAGE_NAME:-ghcr.io/withlogicco/ceryx}:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      target: runtime
+    restart: "no"
+    ports:
+      - 8080:8080
+    volumes:
+      - ./src/templates:/etc/ceryx/templates
+      - ./src/nginx/lualib:/usr/local/share/ceryx/lualib
+      - ./src/static:/etc/ceryx/static
+      - auto_ssl:/var/lib/ceryx/auto-ssl
+    environment:
+      CERYX_DEBUG: ${CERYX_DEBUG:-true}
+      CERYX_DOCKERIZE_EXTRA_ARGS: ""
+
+networks:
+  default:
+    driver: bridge  # Use a Bridge network for local development
+    name: ${CERYX_NETWORK:-ceryx}
+
+volumes:
+  auto_ssl:

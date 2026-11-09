@@ -1,0 +1,32 @@
+[project]
+name = "ceryx"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+# Test tooling only; Ceryx itself has no Python dependencies.
+[dependency-groups]
+dev = [
+    "cryptography>=48.0.0",
+    "jsonschema>=4.26.0",
+    "openapi-spec-validator>=0.9.0",
+    "pyopenssl>=26.2.0",
+    "pytest>=9.0.3",
+    "pyyaml>=6.0.3",
+    "redis>=8.0.0",
+    "requests>=2.34.2",
+    "urllib3>=2.7.0",
+]
+
+[tool.pytest]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["-ra", "-m", "not lets_encrypt"]
+markers = [
+    "redis: tests that run against the Redis storage backend",
+    "sqlite: tests that run against the SQLite storage backend",
+    "integration: tests that require a running Ceryx process",
+    "e2e: end-to-end tests that require external network/public DNS setup",
+    "lets_encrypt: tests that exercise Let's Encrypt ACME flows",
+]
