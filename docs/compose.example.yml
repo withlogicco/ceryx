@@ -1,0 +1,21 @@
+# Ceryx with a sample service, for trying it out locally. See the README's quick start.
+name: ceryx-example-echo
+
+services:
+  ceryx:
+    image: ghcr.io/withlogicco/ceryx:latest
+    ports:
+      - ${CERYX_EXTERNAL_HTTP_PORT:-80}:80
+      - ${CERYX_EXTERNAL_HTTPS_PORT:-443}:443
+      # The API has no authentication. It is published here only to try Ceryx
+      # out on this machine; don't publish it in production.
+      - 127.0.0.1:${CERYX_EXTERNAL_API_PORT:-8080}:8080
+    volumes:
+      - ceryx:/var/lib/ceryx
+
+  echo:
+    image: hashicorp/http-echo
+    command: ["-text", "Hello from behind Ceryx"]
+
+volumes:
+  ceryx:

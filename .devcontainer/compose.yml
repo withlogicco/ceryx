@@ -1,0 +1,23 @@
+services:
+  ceryx:
+    extends:
+      file: ../compose.yml
+      service: ceryx
+    build:
+      context: ..
+      target: devcontainer
+    restart: "no"
+    volumes:
+      - ..:/usr/src/app:cached
+    environment:
+      CERYX_DISABLE_LETS_ENCRYPT: "true"
+      CERYX_REDIS_HOST: redis
+      CERYX_HOST: 127.0.0.1
+    entrypoint: ""
+    command: sleep infinity
+
+  redis:
+    image: redis:3.2.11-alpine
+
+volumes:
+  ceryx_data:

@@ -39,6 +39,22 @@ function exports.client()
     return red
 end
 
+function exports.hgetall(redisClient, key)
+    local arrayValue = redisClient:hgetall(key)
+	local value = {}
+	local nextKey
+
+	for i, v in ipairs(arrayValue) do
+		if i % 2 == 1 then
+			nextKey = v
+		else
+			value[nextKey] = v
+		end
+	end
+
+	return value
+end
+
 exports.prefix = prefix
 exports.host = host
 exports.port = port

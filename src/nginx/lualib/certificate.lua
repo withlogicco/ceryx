@@ -1,6 +1,6 @@
 local certificates = require "ceryx.certificates"
 local ssl = require "ngx.ssl"
-local redis = require "ceryx.redis"
+local mtls = require "mtls"
 local utils = require "ceryx.utils"
 
 local disable_lets_encrypt = utils.getenv("CERYX_DISABLE_LETS_ENCRYPT", ""):lower() == "true"
@@ -10,6 +10,8 @@ if not host then
     ngx.log(ngx.ERROR, "Could not retrieve SSL Server Name: " .. host_err)
     return ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
 end
+
+mtls.request_client_certificate(host)
 
 local host_certificates = certificates.getCertificatesForHost(host)
 
@@ -49,6 +51,8 @@ else
     if not disable_lets_encrypt then
         ngx.log(ngx.INFO, "Passing SSL certificate handling for " .. host .. " to Let's Encrypt.")
         auto_ssl:ssl_certificate()
+    else
+        ngx.log(ngx.INFO, "Let's Encrypt disabled for " .. host .. ". Falling back to default certificate.")
     end
 end
 

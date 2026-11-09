@@ -19,7 +19,8 @@ class CeryxTestsHTTPConnectionPool(HTTPConnectionPool):
         This custom `urlopen` implementation enforces setting the `Host` header
         of the request to `self._impostor_host`.
         """
-        kwargs["headers"]["Host"] = self._impostor_host
+        headers = kwargs.setdefault("headers", {})
+        headers["Host"] = self._impostor_host
         return super().urlopen(*args, **kwargs)
  
 
@@ -30,5 +31,11 @@ class CeryxTestsHTTPSConnectionPool(HTTPSConnectionPool):
         """
         Force set SNI to the requested Host.
         """
+        self._impostor_host = host
         super().__init__(host, *args, **kwargs)
         self.conn_kw["server_hostname"] = host
+
+    def urlopen(self, *args, **kwargs):
+        headers = kwargs.setdefault("headers", {})
+        headers["Host"] = self._impostor_host
+        return super().urlopen(*args, **kwargs)

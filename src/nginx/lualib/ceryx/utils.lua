@@ -32,10 +32,11 @@ function exports.ensure_no_trailing_slash(target)
     return target
 end
 
+-- An empty variable counts as unset, so `VAR: ${VAR:-}` in Compose means "use the default".
 function exports.getenv(variable, default)
     local value = os.getenv(variable)
 
-    if value then
+    if value and value ~= "" then
         return value
     end
 

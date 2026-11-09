@@ -1,172 +1,113 @@
-# Ceryx - Rock-solid, programmable HTTP(S) reverse proxy
+# Ceryx
 
-[![Build Status](https://travis-ci.org/sourcelair/ceryx.svg)](https://travis-ci.org/sourcelair/ceryx)
+**Rock-solid, fast, programmable gateway to your network services.**
 
-Ceryx is the rock-solid, programmable reverse proxy used to provide tens of thousands of [SourceLair](https://www.sourcelair.com/) projects with their unique HTTPS-enabled public URLs.
+Ceryx is a rock-solid, blazing fast, programmable HTTP/S gateway, running in a single container, programmable with an API, supporting tens of thousands of routes (domain-based proxying or redirecting).
 
-## High-level architecture
+[Quick start](#quick-start) · [API](#api) · [Production](#running-in-production) · [Settings](#settings)
 
-One of the main traits of Ceryx that makes it rock-solid is the simplicity in its design. Ceryx is comprised of two components and a Redis backend: the HTTP(S) reverse proxy and an API.
+## Simple architecture
 
-### Proxy
-Ceryx uses NGINX OpenResty under the hood to route requests, based on the HTTP request's `Host` header or the [Server Name Indication](https://en.wikipedia.org/wiki/Server_Name_Indication) in HTTPS requests. Ceryx queries the Redis backend to decide to which target it should route each request.
+- One container
+- Straight forward JSON API over HTTP
+- Real time configuration updates without restarts
 
-### API
-The Ceryx API lets users dynamically create, update and delete Ceryx routes via any HTTP client. The API essentially validates, sanitizes and eventually stores input in the Ceryx backend, to be queried by the proxy.
+## Features
 
-## Configuration
-
-Ceryx is configured with the following environment variables:
-
-  - `CERYX_API_HOST`: The host to bind the Ceryx API (default: `127.0.0.1`)
-  - `CERYX_API_HOSTNAME`: Optional publicly accessible hostname for the Ceryx API (default: None)
-  - `CERYX_API_PORT`: The port to bind the Ceryx API (default: `5555`)
-  - `CERYX_DEBUG`: Enable debug logs for Ceryx API (default: `true`)
-  - `CERYX_DISABLE_LETS_ENCRYPT`: Disable automatic Let's Encrypt HTTPS certificate generation (default: `false`)
-  - `CERYX_DNS_RESOLVER`: The IP of the DNS resolver to use (default: `127.0.0.11` — the Docker DNS resolver)
-  - `CERYX_DOCKERIZE_EXTRA_ARGS`: Extra arguments, to pass to `dockerize` (default: None)
-  - `CERYX_MAX_REQUEST_BODY_SIZE`: The maximum body size allowed for an incoming request to Ceryx (default: `100m` — 100 megabytes)
-  - `CERYX_REDIS_HOST`: The Redis host to use as backend (default: `127.0.0.1`)
-  - `CERYX_REDIS_PASSWORD`: Optional password to use for authenticating with Redis (default: None)
-  - `CERYX_REDIS_PORT`: The where Redis should be reached (default: `6379`)
-  - `CERYX_REDIS_PREFIX`: The prefix to use in Ceryx-related Redis keys (default: `ceryx`)
-  - `CERYX_REDIS_TIMEOUT`: The timeout for all Redis operations, including the intial connection to Redis, specified in milliseconds (default: `100`)
-  - `CERYX_SSL_DEFAULT_CERTIFICATE`: The path to the fallback SSL certificate (default: `/etc/ceryx/ssl/default.crt` — randomly generated at build time)
-  - `CERYX_SSL_DEFAULT_KEY`: The path to the fallback SSL certificate key (default: `/etc/ceryx/ssl/default.key` — randomly generated at build time)
-
-## Adjusting log level
-
-Ceryx will output logs of level to equal or higher of `info` by default. Setting `CERYX_DEBUG` to `true` will also output logs of `debug` level.
-
-### Not running Ceryx as container?
-
-👋 **Heads up!** Ceryx is designed to be run inside a container using Docker or similar tools. 
-
-If you're not running Ceryx using the official [`sourcelair/ceryx`](https://hub.docker.com/r/sourcelair/ceryx/) image, you'll need to take care of configuration file generation yourself. Take a look at [`entrypoint.sh`](ceryx/bin/entrypoint.sh) to get ideas.
-
-### Dynamic SSL certificates
-
-By default, Ceryx will try to generate a certificate when a domain is hit via HTTPS through Let's Encrypt, if and only if a route exists for it. To disable this behavior, set `CERYX_DISABLE_LETS_ENCRYPT` to `true`.
+- Host-based routing for HTTP and HTTPS
+- Per-route settings
+- Automatic Let's Encrypt certificates, or your own
+- Client certificate authentication (mTLS)
+- HTTP/2 and WebSockets
 
 ## Quick start
 
-You can start using Ceryx in a few seconds!
+First, start Ceryx and a sample `echo` service on your machine:
 
-### Requirements
-
-Before getting started, make sure you have the following:
-
-1. A computer accessible from the internet with Docker ([docs](https://docs.docker.com/install/linux/docker-ce/ubuntu/)) and Docker Compose ([docs](https://docs.docker.com/compose/install/))
-2. At least one domain (or subdomain) resolving to the computer's public IP addtess
-
-### Running Ceryx
-
-Just run the following command to run Ceryx in the background:
-
-```
-docker-compose up -d
+```bash
+docker compose -f 'https://github.com/withlogicco/ceryx.git#v1.0.0:docs/compose.example.yml' up -d
 ```
 
-### Running Ceryx in Kubernetes ###
+> [!TIP]
+> 
+> Ports 80, 443 or 8080 already in use? Pick others with `CERYX_EXTERNAL_HTTP_PORT`, `CERYX_EXTERNAL_HTTPS_PORT` and `CERYX_EXTERNAL_API_PORT`. Example:
+> 
+> ```
+> CERYX_EXTERNAL_HTTP_PORT=8000 docker compose -f 'https://github.com/withlogicco/ceryx.git#v1.0.0:docs/compose.example.yml' up -d
+> ```
 
-#### Kubernetes Requirements ####
-1. A Kubernetes cluster deployed with a public facing IP. Kubectl, Helm installed on your machine. Tiller installed on the cluster.  
+Then, route `echo.localhost` to the `echo` service:
 
-2. At least one domain/subdomain (or even a wildcard A record) resolving to the cluster IP address.  
-
-3. Edit the values file in .k8s/ceryx/values.yaml to suit your deployment needs.
-
-4. 
-```
-cd k8s
-
-helm install --debug --generate-name --values <path to your value file> ./ceryx
-
-Recommend: Add --dry-run to the above before deploying to check generated yaml. 
-
+```bash
+docker compose -p ceryx-example-echo exec ceryx curl -X POST localhost:8080/api/routes -H 'Content-Type: application/json' \
+  -d '{"source": "echo.localhost", "target": "http://echo:5678"}'
 ```
 
-### Exposing the API to the public
+Finally, check the result:
 
-**👋 Heads up!** Don't ever do this in production! Anyone from the internet will be able to access the Ceryx API and mess with it. It's useful for development/testing though.
-
-To access (and therefore 🐶 dogfood) the Ceryx API via Ceryx' proxy, set the `CERYX_API_HOSTNAME` setting and run the following command in your terminal:
-
-```
-docker-compose exec api bin/populate-api
+```console
+$ curl http://echo.localhost
+Hello from behind Ceryx
 ```
 
-## The Ceryx API
+### Notes
+- `*.localhost` points to your machine, so this works without DNS
+- Clean up with `docker compose -p ceryx-example-echo down -v`
+- To serve a real domain see [Running in production](#running-in-production).
 
-### Add a new route to Ceryx
+## API
 
-```
-curl -H "Content-Type: application/json" \
-     -X POST \
-     -d '{"source":"publicly.accessible.domain","target":"http://service.internal:8000"}' \
-     http://ceryx-api-host/api/routes
-```
+The most prominent use of the API is to add a new route. Example from hostname `app.example.com` to the target `app`:
 
-### Update a route in Ceryx
-
-```
-curl -H "Content-Type: application/json" \
-     -X PUT \
-     -d '{"source":"publicly.accessible.domain","target":"http://another-service.internal:8000"}' \
-     http://ceryx-api-host/api/routes/publicly.accessible.domain
+```bash
+docker compose -p ceryx exec ceryx curl -X POST localhost:8080/api/routes -H 'Content-Type: application/json' \
+  -d '{"source": "app.example.com", "target": "http://app:8000"}'
 ```
 
-### Delete a route from Ceryx
+See the full API feature set at [ceryx.dev/docs/api/](https://ceryx.dev/docs/api/).
 
-```
-curl -H "Content-Type: application/json" \
-     -X DELETE \
-     http://ceryx-api-host/api/routes/publicly.accessible.domain
-```
+## Running in production
 
-### Enforce HTTPS
+On your server, start Ceryx with:
 
-You can enforce redirection from HTTP to HTTPS for any host you would like.
-
-```
-curl -H "Content-Type: application/json" \
-     -X POST \
-     -d '{"source":"publicly.accessible.domain","target":"http://service.internal:8000", "settings": {"enforce_https": true}}' \
-     http://ceryx-api-host/api/routes
+```bash
+docker compose -f 'https://github.com/withlogicco/ceryx.git#v1.0.0:compose.yml' up -d
 ```
 
-The above functionality works in `PUT` update requests as well.
+> [!TIP]
+> 
+> `compose.yml` respects `CERYX_EXTERNAL_HTTP_PORT`, `CERYX_EXTERNAL_HTTPS_PORT` for setting custom HTTP and HTTPS ports of the host for Ceryx to bind to.
 
-### Redirect to target, instead of proxying
+See more advanced deployment options and configuration at [ceryx.dev/docs/deploy/](https://ceryx.dev/docs/deploy/).
 
-Instead of proxying the request to the targetm you can prompt the client to redirect the request there itself.
+## Settings
 
-```
-curl -H "Content-Type: application/json" \
-     -X POST \
-     -d '{"source":"sourcelair.com","target":"https://www.sourcelair.com", "settings": {"mode": "redirect"}}' \
-     http://ceryx-api-host/api/routes
-```
+Ceryx is configured with environment variables.
 
-## Ceryx web UI
+| Variable | Default | Purpose |
+|---|---|---|
+| `CERYX_DISABLE_LETS_ENCRYPT` | `false` | Set to `true` to stop getting Let's Encrypt certificates automatically. |
+| `CERYX_LETS_ENCRYPT_CA` | `https://acme-v02.api.letsencrypt.org/directory` | ACME directory URL, e.g. Let's Encrypt staging for testing. |
+| `CERYX_SQLITE_PATH` | `/var/lib/ceryx/db.sqlite` | SQLite database file. |
+| `CERYX_TLS_DEFAULT_CERTIFICATE` | `/etc/ceryx/ssl/default.crt` | Certificate for hostnames without one (self-signed). Ceryx 0.x's `CERYX_SSL_DEFAULT_CERTIFICATE` still works. |
+| `CERYX_TLS_DEFAULT_KEY` | `/etc/ceryx/ssl/default.key` | Private key of the default certificate. Ceryx 0.x's `CERYX_SSL_DEFAULT_KEY` still works. |
+| `CERYX_MAX_REQUEST_BODY_SIZE` | `100m` | Largest request body Ceryx accepts. |
+| `CERYX_DNS_RESOLVER` | `127.0.0.11` | DNS server for resolving targets (Docker's by default). |
+| `CERYX_DEBUG` | `false` | Turns on debug logs and turns off the Lua code cache. Development only. |
 
-The [Ceryx Web community project](https://github.com/parisk/ceryx-web) provides a sweet web UI 
+See all settings at [ceryx.dev/docs/settings/](https://ceryx.dev/docs/settings/).
 
-## Real-world uses
+> [!NOTE]
+> Ceryx also has a Redis storage backend. It exists only to support pre-release versions of Ceryx and will be removed in the next major version.
 
-Ceryx has proven to be extremely reliable in production systems, handling tens of thousands of routes in its backend. Some of them are:
+## Development
 
-- [**SourceLair**](https://www.sourcelair.com/): In-browser IDE for web applications, made publicly accessible via development web servers powered by Ceryx.
-- [**Stolos**](http://stolos.io/): Managed Docker development environments for enterprises.
+Open the repository in its dev container to work on Ceryx.
 
-Do you use Ceryx in production as well? Please [open a Pull Request](https://github.com/sourcelair/ceryx/pulls) to include it here. We would love to have it in our list.
+## Testing
 
-## Origin
-
-Ceryx started in [SourceLair](https://www.sourcelair.com) to help provide tens of thousands of users with a unique public URL (subdomain) for each one of their projects. Initial development had different stages; from using [tproxy](https://github.com/benoitc/tproxy), [Twisted](https://www.twistedmatrix.com/trac/) and bare [NGINX](https://nginx.org/en/) as a proxy and backends ranging from [MongoDB](https://www.mongodb.com/) to [etcd](https://github.com/etcd-io/etcd).
-
-After a lot of experimentation, we have ended up in using [OpenResty](https://openresty.org/en/) as the proxy and [Redis](https://redis.io/) as the backend. This solution has served us and we are now developing it in the open as an open source project.
+Run `docker compose -f compose.test.yml run --rm test`.
 
 ## License
 
-Ceryx is [MIT licensed](LICENSE).
+[MIT](LICENSE)
