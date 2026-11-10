@@ -1,41 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Ceryx - Service Not Available</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ceryx - Service Not Available</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #12031A;
+      --card: #0E0414;
+      --foreground: #F3E7D3;
+      --muted: #C4B3C6;
+      --accent: #FF2D95;
+      --line: #3B1442;
+      --pink: #FF2D95;
+      --content: 70rem;
+      --gutter: max(1.5rem, calc((100% - var(--content)) / 2));
+    }
 
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Source Sans Pro', sans-serif;
-            background: #f5f5f5;
-            display: flex;
-            justify-content: center;
-        }
+    @media (prefers-color-scheme: light) {
+      :root {
+        color-scheme: light;
+        --background: #FFFAF5;
+        --card: #FFFFFF;
+        --foreground: #1E0626;
+        --muted: #5E4A60;
+        --accent: #C2006A;
+        --line: #E8D3DC;
+      }
+    }
 
-        main {
-            display: inline-block;
-            text-align: center;
-            background: #fff;
-            padding: 32px;
-            border-radius: 4px;
-            box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),
-                        0 1px 5px 0 rgba(0,0,0,0.12),
-                        0 3px 1px -2px rgba(0,0,0,0.2) !important;
-            margin-top: 64px;
-        }
+    /* Reset */
+    *, ::before, ::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: 0 solid;
+    }
 
-        h1 {
-            padding: 0;
-            margin: 0;
-        }
-    </style>
+    h1, h2 { font-size: inherit; font-weight: inherit; }
+    a { color: inherit; text-decoration: none; }
+    img, svg { display: block; }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.625;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-wrap: pretty;
+    }
+
+    :focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
+    a:focus-visible { outline: none; text-decoration: underline; }
+
+    /* Layout */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: clip;
+    }
+
+    /* Fills the space between header and footer, so the page fits the screen */
+    .section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.5rem;
+      padding: 2rem var(--gutter) 0;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      height: 4.5rem;
+      padding-inline: var(--gutter);
+      border-bottom: 1px solid var(--line);
+      background-color: var(--card);
+    }
+    .logo-link { display: block; }
+    .logo { width: auto; height: 2rem; }
+
+    .site-footer {
+      margin-top: auto;
+      padding: 2rem var(--gutter);
+      background-color: var(--card);
+    }
+    .site-footer__inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.4286;
+    }
+
+    /* Hero */
+    .error {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      text-align: center;
+    }
+    .error-code {
+      max-width: 48rem;
+      color: var(--accent);
+      font-size: 7.5rem;
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.05em;
+      text-shadow: 0 0 24px color-mix(in oklab, var(--pink) 50%, transparent);
+    }
+    @media (prefers-color-scheme: light) {
+      .error-code { text-shadow: 0 0 12px color-mix(in oklab, var(--pink) 25%, transparent); }
+    }
+    .error-title {
+      font-size: 1.875rem;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+    }
+    .error-message {
+      max-width: 42rem;
+      color: var(--muted);
+      font-size: 1.125rem;
+      line-height: 1.5556;
+    }
+    /* Full-bleed, centered on the viewport */
+    .hero {
+      position: relative;
+      left: 50%;
+      display: block;
+      flex: 1 1 0;
+      width: 100vw;
+      max-width: none;
+      min-height: 12rem;
+      max-height: 25rem;
+      object-fit: fill;
+      translate: -50% 0;
+    }
+
+    /* Links and buttons */
+    .link {
+      color: var(--accent);
+      text-underline-offset: 4px;
+    }
+    @media (hover: hover) {
+      .link:hover { text-decoration: underline; }
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: 1.5px solid var(--foreground);
+      border-radius: 0.25rem;
+      color: var(--foreground);
+      font-size: 0.875rem;
+      line-height: 1.4286;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color 200ms, border-color 200ms, box-shadow 200ms;
+    }
+    @media (hover: hover) {
+      .btn:hover {
+        border-color: var(--pink);
+        color: var(--accent);
+        box-shadow: 0 0 24px color-mix(in oklab, var(--pink) 55%, transparent);
+      }
+    }
+    .logo-link:focus-visible, .btn:focus-visible {
+      outline: 2px solid var(--pink);
+      outline-offset: 2px;
+      text-decoration: none;
+    }
+
+    @media (width >= 48rem) {
+      .section { padding-top: 3rem; }
+      .error-code { font-size: 10.5rem; }
+      .error-title { font-size: 2.25rem; }
+      .error-message { font-size: 1.25rem; line-height: 1.4; }
+    }
+  </style>
 </head>
+
 <body>
-    <main>
-        <h1>Ceryx</h1>
-        <h2>Service Not Available</h2>
-        <p>The website you are trying to access, does not exist.</p>
-    </main>
+  <header class="site-header">
+    <a href="https://ceryx.dev/" class="logo-link" aria-label="Ceryx home">
+      <img src="/_ceryx/logo.svg" alt="Ceryx logo" class="logo">
+    </a>
+    <a href="https://ceryx.dev/docs" class="btn">Docs</a>
+  </header>
+  <main>
+    <section class="section">
+      <div class="error">
+        <h1 class="error-code">503</h1>
+        <h2 class="error-title">Service Not Available</h2>
+        <p class="error-message">This service is temporarily unavailable. Try again shortly.</p>
+      </div>
+      <img class="hero" src="/_ceryx/hero.svg" alt="" aria-hidden="true">
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p>Built with <a class="link" href="https://withlogic.co/" target="_blank"
+          rel="noopener noreferrer">LOGIC</a>.</p>
+    </div>
+  </footer>
 </body>
 </html>

@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 85 2400 435" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <filter id="hero-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+    <linearGradient id="hero-grid-fade" x1="0" y1="300" x2="0" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="1"/>
+    </linearGradient>
+    <mask id="hero-grid-mask" maskUnits="userSpaceOnUse" x="-2000" y="290" width="6400" height="240">
+      <rect x="-2000" y="290" width="6400" height="240" fill="url(#hero-grid-fade)"/>
+    </mask>
+  </defs>
+
+  <!-- Grid, fading toward the horizon so the far lines don't merge into a solid band -->
+  <g stroke="#FF2D95" stroke-width="1.5" mask="url(#hero-grid-mask)">
+    <line x1="-6" y1="300" x2="-8850" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="12" y1="300" x2="-8700" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="30" y1="300" x2="-8550" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="48" y1="300" x2="-8400" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="66" y1="300" x2="-8250" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="84" y1="300" x2="-8100" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="102" y1="300" x2="-7950" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="120" y1="300" x2="-7800" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="138" y1="300" x2="-7650" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="156" y1="300" x2="-7500" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="174" y1="300" x2="-7350" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="192" y1="300" x2="-7200" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="210" y1="300" x2="-7050" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="228" y1="300" x2="-6900" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="246" y1="300" x2="-6750" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="264" y1="300" x2="-6600" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="282" y1="300" x2="-6450" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="300" y1="300" x2="-6300" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="318" y1="300" x2="-6150" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="336" y1="300" x2="-6000" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="354" y1="300" x2="-5850" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="372" y1="300" x2="-5700" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="390" y1="300" x2="-5550" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="408" y1="300" x2="-5400" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="426" y1="300" x2="-5250" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="444" y1="300" x2="-5100" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="462" y1="300" x2="-4950" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="480" y1="300" x2="-4800" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="498" y1="300" x2="-4650" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="516" y1="300" x2="-4500" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="534" y1="300" x2="-4350" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="552" y1="300" x2="-4200" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="570" y1="300" x2="-4050" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="588" y1="300" x2="-3900" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="606" y1="300" x2="-3750" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="624" y1="300" x2="-3600" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="642" y1="300" x2="-3450" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="660" y1="300" x2="-3300" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="678" y1="300" x2="-3150" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="696" y1="300" x2="-3000" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="714" y1="300" x2="-2850" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="732" y1="300" x2="-2700" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="750" y1="300" x2="-2550" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="768" y1="300" x2="-2400" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="786" y1="300" x2="-2250" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="804" y1="300" x2="-2100" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="822" y1="300" x2="-1950" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="840" y1="300" x2="-1800" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="858" y1="300" x2="-1650" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="876" y1="300" x2="-1500" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="894" y1="300" x2="-1350" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="912" y1="300" x2="-1200" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="930" y1="300" x2="-1050" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="948" y1="300" x2="-900" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="966" y1="300" x2="-750" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="984" y1="300" x2="-600" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1002" y1="300" x2="-450" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1020" y1="300" x2="-300" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1038" y1="300" x2="-150" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1056" y1="300" x2="0" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1074" y1="300" x2="150" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1092" y1="300" x2="300" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1110" y1="300" x2="450" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1128" y1="300" x2="600" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1146" y1="300" x2="750" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1164" y1="300" x2="900" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1182" y1="300" x2="1050" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1200" y1="300" x2="1200" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1218" y1="300" x2="1350" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1236" y1="300" x2="1500" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1254" y1="300" x2="1650" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1272" y1="300" x2="1800" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1290" y1="300" x2="1950" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1308" y1="300" x2="2100" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1326" y1="300" x2="2250" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1344" y1="300" x2="2400" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1362" y1="300" x2="2550" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1380" y1="300" x2="2700" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1398" y1="300" x2="2850" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1416" y1="300" x2="3000" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1434" y1="300" x2="3150" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1452" y1="300" x2="3300" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1470" y1="300" x2="3450" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1488" y1="300" x2="3600" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1506" y1="300" x2="3750" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1524" y1="300" x2="3900" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1542" y1="300" x2="4050" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1560" y1="300" x2="4200" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1578" y1="300" x2="4350" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1596" y1="300" x2="4500" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1614" y1="300" x2="4650" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1632" y1="300" x2="4800" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1650" y1="300" x2="4950" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1668" y1="300" x2="5100" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1686" y1="300" x2="5250" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1704" y1="300" x2="5400" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1722" y1="300" x2="5550" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1740" y1="300" x2="5700" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1758" y1="300" x2="5850" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1776" y1="300" x2="6000" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1794" y1="300" x2="6150" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1812" y1="300" x2="6300" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1830" y1="300" x2="6450" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1848" y1="300" x2="6600" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1866" y1="300" x2="6750" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1884" y1="300" x2="6900" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1902" y1="300" x2="7050" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1920" y1="300" x2="7200" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1938" y1="300" x2="7350" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1956" y1="300" x2="7500" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1974" y1="300" x2="7650" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="1992" y1="300" x2="7800" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2010" y1="300" x2="7950" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2028" y1="300" x2="8100" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2046" y1="300" x2="8250" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2064" y1="300" x2="8400" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2082" y1="300" x2="8550" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2100" y1="300" x2="8700" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2118" y1="300" x2="8850" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2136" y1="300" x2="9000" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2154" y1="300" x2="9150" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2172" y1="300" x2="9300" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2190" y1="300" x2="9450" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2208" y1="300" x2="9600" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2226" y1="300" x2="9750" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2244" y1="300" x2="9900" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2262" y1="300" x2="10050" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2280" y1="300" x2="10200" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2298" y1="300" x2="10350" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2316" y1="300" x2="10500" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2334" y1="300" x2="10650" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2352" y1="300" x2="10800" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2370" y1="300" x2="10950" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2388" y1="300" x2="11100" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="2406" y1="300" x2="11250" y2="520" vector-effect="non-scaling-stroke"/>
+    <line x1="0" y1="302.5" x2="2400" y2="302.5" vector-effect="non-scaling-stroke"/>
+    <line x1="0" y1="304.7" x2="2400" y2="304.7" vector-effect="non-scaling-stroke"/>
+    <line x1="0" y1="308.9" x2="2400" y2="308.9" vector-effect="non-scaling-stroke"/>
+    <line x1="0" y1="316.9" x2="2400" y2="316.9" vector-effect="non-scaling-stroke"/>
+    <line x1="0" y1="332.1" x2="2400" y2="332.1" vector-effect="non-scaling-stroke"/>
+    <line x1="0" y1="360.9" x2="2400" y2="360.9" vector-effect="non-scaling-stroke"/>
+    <line x1="0" y1="415.8" x2="2400" y2="415.8" vector-effect="non-scaling-stroke"/>
+    <line x1="0" y1="520" x2="2400" y2="520" vector-effect="non-scaling-stroke"/>
+  </g>
+
+  <!-- Horizon line with glow -->
+  <line x1="0" y1="300" x2="2400" y2="300" stroke="#FF2D95" stroke-width="10" opacity="0.4" filter="url(#hero-glow)"/>
+  <line x1="0" y1="300" x2="2400" y2="300" stroke="#FF2D95" stroke-width="3"/>
+</svg>
