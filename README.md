@@ -4,7 +4,7 @@
 
 Ceryx is a rock-solid, blazing fast, programmable HTTP/S gateway, running in a single container, programmable with an API, supporting tens of thousands of routes (domain-based proxying or redirecting).
 
-[Quick start](#quick-start) · [API](#api) · [Production](#running-in-production) · [Settings](#settings)
+[Quick start](#quick-start) · [API](#api) · [Running on a server](#running-on-a-server) · [Configuration](#configuration)
 
 ## Simple architecture
 
@@ -53,7 +53,7 @@ Hello from behind Ceryx
 ### Notes
 - `*.localhost` points to your machine, so this works without DNS
 - Clean up with `docker compose -p ceryx-example-echo down -v`
-- To serve a real domain see [Running in production](#running-in-production).
+- To serve a real domain see [running on a server](#running-on-a-server).
 
 ## API
 
@@ -64,9 +64,9 @@ docker compose -p ceryx exec ceryx curl -X POST localhost:8080/api/routes -H 'Co
   -d '{"source": "app.example.com", "target": "http://app:8000"}'
 ```
 
-See the full API feature set at [ceryx.dev/docs/api/](https://ceryx.dev/docs/api/).
+See the full API feature set at [ceryx.dev/docs/api](https://ceryx.dev/docs/api).
 
-## Running in production
+## Running on a server
 
 On your server, start Ceryx with:
 
@@ -74,13 +74,9 @@ On your server, start Ceryx with:
 docker compose -f 'https://github.com/withlogicco/ceryx.git#v1.0.0:compose.yml' up -d
 ```
 
-> [!TIP]
-> 
-> `compose.yml` respects `CERYX_EXTERNAL_HTTP_PORT`, `CERYX_EXTERNAL_HTTPS_PORT` for setting custom HTTP and HTTPS ports of the host for Ceryx to bind to.
+See more advanced deployment options and configuration at [ceryx.dev/docs/deploy](https://ceryx.dev/docs/deploy).
 
-See more advanced deployment options and configuration at [ceryx.dev/docs/deploy/](https://ceryx.dev/docs/deploy/).
-
-## Settings
+## Configuration
 
 Ceryx is configured with environment variables.
 
@@ -95,10 +91,7 @@ Ceryx is configured with environment variables.
 | `CERYX_DNS_RESOLVER` | `127.0.0.11` | DNS server for resolving targets (Docker's by default). |
 | `CERYX_DEBUG` | `false` | Turns on debug logs and turns off the Lua code cache. Development only. |
 
-See all settings at [ceryx.dev/docs/settings/](https://ceryx.dev/docs/settings/).
-
-> [!NOTE]
-> Ceryx also has a Redis storage backend. It exists only to support pre-release versions of Ceryx and will be removed in the next major version.
+See all configuration settings at [ceryx.dev/docs/configuration](https://ceryx.dev/docs/configuration).
 
 ## Development
 
