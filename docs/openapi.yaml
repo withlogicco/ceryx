@@ -1,0 +1,396 @@
+openapi: 3.1.0
+info:
+  title: Ceryx API
+  version: 1.0.0
+  description: |
+    Manage Ceryx routes and TLS certificates. Changes apply to live traffic
+    without reloading NGINX.
+
+    Every path also accepts a trailing slash. Methods that a path does not
+    list return 405 with an `Allow` header. Unknown paths return 404 with
+    `{"detail": "Invalid route: <path>"}`.
+  license:
+    name: MIT
+servers:
+  - url: http://{host}:{port}
+    description: Ceryx API listener
+    variables:
+      host:
+        default: ceryx
+        description: Hostname of the Ceryx container, e.g. its Compose service name.
+      port:
+        default: "8080"
+        description: API port inside the container; use the published port when calling from the host.
+tags:
+  - name: routes
+  - name: certificates
+
+paths:
+  /api/routes:
+    get:
+      tags: [routes]
+      operationId: listRoutes
+      summary: List routes
+      responses:
+        "200":
+          description: All routes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Route"}
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+    post:
+      tags: [routes]
+      operationId: createRoute
+      summary: Create or replace a route
+      description: Creates the route for `source`, replacing any existing route for it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/RouteCreate"}
+      responses:
+        "201":
+          description: The stored route.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Route"}
+        "400": {$ref: "#/components/responses/BadRequest"}
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+        "500": {$ref: "#/components/responses/ServerError"}
+
+  /api/routes/{host}:
+    parameters:
+      - $ref: "#/components/parameters/Host"
+    get:
+      tags: [routes]
+      operationId: getRoute
+      summary: Get a route
+      responses:
+        "200":
+          description: The route.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Route"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+    put:
+      tags: [routes]
+      operationId: updateRoute
+      summary: Update a route
+      description: |
+        Updates an existing route. Omitted fields keep their stored values and
+        `settings` are merged into the stored settings.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/RouteUpdate"}
+      responses:
+        "200":
+          description: The updated route.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Route"}
+        "400": {$ref: "#/components/responses/BadRequest"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+        "500": {$ref: "#/components/responses/ServerError"}
+    delete:
+      tags: [routes]
+      operationId: deleteRoute
+      summary: Delete a route
+      description: Idempotent; deleting a missing route also returns 204.
+      responses:
+        "204":
+          description: Deleted.
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+        "500": {$ref: "#/components/responses/ServerError"}
+
+  /api/certificates:
+    get:
+      tags: [certificates]
+      operationId: listCertificates
+      summary: List stored certificates
+      responses:
+        "200":
+          description: Certificates stored through the API.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/CertificateListItem"}
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+    post:
+      tags: [certificates]
+      operationId: createCertificate
+      summary: Create or replace a certificate
+      description: Stores the certificate for `domain`, replacing any existing one.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CertificateCreate"}
+      responses:
+        "201":
+          description: The stored certificate (without the private key).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Certificate"}
+        "400": {$ref: "#/components/responses/BadRequest"}
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+        "500": {$ref: "#/components/responses/ServerError"}
+
+  /api/certificates/{domain}:
+    parameters:
+      - $ref: "#/components/parameters/Domain"
+    get:
+      tags: [certificates]
+      operationId: getCertificate
+      summary: Get the certificate served for a domain
+      description: |
+        Returns the certificate Ceryx would serve for `domain`: an exact
+        stored match, then a stored wildcard (`*.parent`), then certificate
+        files from the route settings.
+      responses:
+        "200":
+          description: The certificate (without the private key).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Certificate"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+    put:
+      tags: [certificates]
+      operationId: updateCertificate
+      summary: Update a stored certificate
+      description: |
+        Updates the certificate stored for exactly `domain` (no wildcard or
+        file fallback). `certificate` and `private_key` are replaced together;
+        a replaced certificate takes the request's `chain`, or none. `meta`
+        replaces the stored metadata when given.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CertificateUpdate"}
+      responses:
+        "200":
+          description: The updated certificate (without the private key).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Certificate"}
+        "400": {$ref: "#/components/responses/BadRequest"}
+        "404": {$ref: "#/components/responses/NotFound"}
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+        "500": {$ref: "#/components/responses/ServerError"}
+    delete:
+      tags: [certificates]
+      operationId: deleteCertificate
+      summary: Delete a stored certificate
+      description: Idempotent; deleting a missing certificate also returns 204.
+      responses:
+        "204":
+          description: Deleted.
+        "405": {$ref: "#/components/responses/MethodNotAllowed"}
+        "500": {$ref: "#/components/responses/ServerError"}
+
+components:
+  parameters:
+    Host:
+      name: host
+      in: path
+      required: true
+      description: Route source hostname, or `$wildcard` for the catch-all route.
+      schema: {type: string}
+    Domain:
+      name: domain
+      in: path
+      required: true
+      description: Certificate domain; may be a wildcard such as `*.example.com`.
+      schema: {type: string}
+
+  responses:
+    BadRequest:
+      description: Missing or invalid input.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+    NotFound:
+      description: No such resource.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+    MethodNotAllowed:
+      description: The path does not support this method.
+      headers:
+        Allow:
+          description: Comma-separated methods the path supports.
+          required: true
+          schema: {type: string}
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+    ServerError:
+      description: The storage backend failed, or a Ceryx environment variable the request needs has an unusable value (`detail` names it).
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Error"}
+
+  schemas:
+    Error:
+      type: object
+      required: [detail]
+      properties:
+        detail: {type: string}
+
+    RouteSettings:
+      type: object
+      required: [enforce_https, mode, certificate_path, key_path, mtls_require_client_certificate, mtls_trusted_ca, mtls_verify_depth]
+      properties:
+        enforce_https:
+          type: boolean
+          description: |
+            Redirect HTTP requests to HTTPS. A route created without it gets
+            `CERYX_ROUTE_SETTINGS_DEFAULT_ENFORCE_HTTPS` (false unless set).
+        mode:
+          type: string
+          description: "`proxy` forwards requests to the target; `redirect` redirects to it."
+          examples: [proxy, redirect]
+        certificate_path:
+          type: [string, "null"]
+          description: Path of a certificate file inside the container.
+        key_path:
+          type: [string, "null"]
+          description: Path of the matching private key file.
+        mtls_require_client_certificate:
+          type: boolean
+          description: |
+            Require clients to present a certificate signed by
+            `mtls_trusted_ca`; others get 403, and requests sent on a TLS
+            connection opened for another hostname get 421. Requires
+            `enforce_https`. A route created without it gets
+            `CERYX_ROUTE_SETTINGS_DEFAULT_MTLS_REQUIRE_CLIENT_CERTIFICATE`
+            (false unless set).
+        mtls_trusted_ca:
+          type: [string, "null"]
+          description: |
+            Path of the CA bundle inside the container that client
+            certificates must be signed by. When null, requests use
+            `CERYX_MTLS_DEFAULT_TRUSTED_CA`.
+        mtls_verify_depth:
+          type: [integer, "null"]
+          minimum: 0
+          description: |
+            Maximum number of intermediate certificates between a client
+            certificate and the CA. When null, requests use
+            `CERYX_MTLS_DEFAULT_VERIFY_DEPTH`, or OpenSSL's limit.
+
+    RouteSettingsInput:
+      type: object
+      description: Any subset of the route settings.
+      properties:
+        enforce_https: {type: boolean}
+        mode: {type: string, examples: [proxy, redirect]}
+        certificate_path: {type: [string, "null"]}
+        key_path: {type: [string, "null"]}
+        mtls_require_client_certificate: {type: boolean}
+        mtls_trusted_ca: {type: string}
+        mtls_verify_depth: {type: integer, minimum: 0}
+
+    Route:
+      type: object
+      required: [source, target, settings]
+      properties:
+        source: {type: string}
+        target: {type: string}
+        settings: {$ref: "#/components/schemas/RouteSettings"}
+
+    RouteCreate:
+      type: object
+      required: [source, target]
+      properties:
+        source:
+          type: string
+          description: Hostname to match, or `$wildcard` for the catch-all route.
+        target:
+          type: string
+          description: Upstream to proxy or redirect to.
+        settings: {$ref: "#/components/schemas/RouteSettingsInput"}
+
+    RouteUpdate:
+      type: object
+      properties:
+        source:
+          type: string
+          description: Optional; must equal the `host` in the URL.
+        target: {type: string}
+        settings: {$ref: "#/components/schemas/RouteSettingsInput"}
+
+    CertificateMeta:
+      type: object
+      description: |
+        Free-form metadata. Ceryx adds `issued_at` (when not given) and
+        `stored_at` on every write.
+      properties:
+        vendor: {type: string}
+        san:
+          type: array
+          items: {type: string}
+        issued_at: {type: string}
+        expires_at: {type: string}
+        stored_at: {type: integer}
+      additionalProperties: true
+
+    Certificate:
+      type: object
+      required: [domain, has_certificate, has_chain]
+      properties:
+        domain: {type: string}
+        has_certificate: {type: boolean}
+        has_chain: {type: boolean}
+        meta: {$ref: "#/components/schemas/CertificateMeta"}
+
+    CertificateListItem:
+      type: object
+      required: [domain]
+      properties:
+        domain: {type: string}
+        meta: {$ref: "#/components/schemas/CertificateMeta"}
+
+    CertificateCreate:
+      type: object
+      required: [domain, certificate, private_key]
+      properties:
+        domain: {type: string}
+        certificate:
+          type: string
+          description: PEM-encoded certificate.
+        private_key:
+          type: string
+          description: PEM-encoded private key.
+        chain:
+          type: string
+          description: PEM-encoded intermediate chain.
+        meta: {$ref: "#/components/schemas/CertificateMeta"}
+
+    CertificateUpdate:
+      type: object
+      properties:
+        domain:
+          type: string
+          description: Optional; must equal the `domain` in the URL.
+        certificate:
+          type: string
+          description: PEM-encoded certificate; requires `private_key`.
+        private_key:
+          type: string
+          description: PEM-encoded private key; requires `certificate`.
+        chain:
+          type: string
+          description: Used only with a new `certificate`; omitting it clears the chain.
+        meta: {$ref: "#/components/schemas/CertificateMeta"}
+      dependentRequired:
+        certificate: [private_key]
+        private_key: [certificate]
