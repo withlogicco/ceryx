@@ -32,7 +32,7 @@ RUN --mount=type=bind,source=bin/install-luarocks.sh,target=/tmp/install-luarock
     lua5.1 \
     liblua5.1-0-dev \
     luarocks \
-    nginx \
+    nginx=1.24.0-2ubuntu7.21 \
     openssl \
     sqlite3 \
     libsqlite3-dev \
